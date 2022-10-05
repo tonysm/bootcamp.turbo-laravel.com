@@ -774,7 +774,7 @@ class ChirpController extends Controller
 }
 ```
 
-By the way, although this is using Macros, we're still using the Turbo Stream actions that ship with Turbo by default. It's also possible to go custom and create your own actions, if you want to.
+Although this is using Macros, we're still using the Turbo Stream actions that ship with Turbo by default. It's also possible to go custom and create your own actions, if you want to.
 
 ## Testing it out
 

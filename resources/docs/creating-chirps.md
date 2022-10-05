@@ -78,9 +78,9 @@ This will create the following routes:
 
 | Verb | URI | Action | Route Name |
 |---|---|---|---|
-| `GET` | `/chirps` | `index` | `chirps.index` |
-| `GET` | `/chirps/create` | `create` | `chirps.create` |
-| `POST` | `/chirps` | `store` | `chirps.store` |
+| GET | `/chirps` | index | `chirps.index` |
+| GET | `/chirps/create` | create | `chirps.create` |
+| POST | `/chirps` | store | `chirps.store` |
 
 You may view all of the routes for your application by running the `php artisan route:list` command.
 
@@ -656,6 +656,8 @@ You may exit Tinker by using the `exit` command, or by pressing `Ctrl` + `c`.
 ## Flash Messages
 
 Before we move one from creating Chirps, let's add the ability to show flash messages to the users. This may be useful to tell them that something happened in our app.
+
+Since we're redirecting the user to another page and redirects happens in the browser (client side), we'd need a way to store messages across requests. Laravel has a feature called [Flash Data](https://laravel.com/docs/session#flash-data) which does exactly that! With that, we can safely store a flash message into the session, just so we can retrive it from there after the redirect happens in the user's browser.
 
 Let's update our `store` action in the `ChirpController` to also return a flash message named `status` in the redirect:
 
