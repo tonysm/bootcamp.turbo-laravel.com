@@ -24,7 +24,7 @@
                 <nav class="md:hidden p-4 border-b" data-controller="dropdown" data-dropdown-css-class="hidden">
                     <div class="relative">
                         <ul class="flex items-center justify-between">
-                            <li><span class="text-xl font-semibold">Turbo Laravel Bootcamp</span></li>
+                            <li><span class="text-lg lg:text-xl font-semibold">Turbo Laravel Bootcamp</span></li>
                             <li><button data-action="click->dropdown#toggle"><x-icons.bars-3 /></button></li>
                         </ul>
 
@@ -52,7 +52,7 @@
                 <aside class="hidden min-h-screen bg-gray-100 md:block w-1/4 py-4 px-2 lg:px-8 lg:py-8 shrink-0">
                     <nav class="nav fixed" data-controller="nav">
                         <div class="no-prose mb-8">
-                            <p class="text-4xl font-bold">Turbo Laravel<br> Bootcamp</p>
+                            <p class="text-xl lg:text-3xl font-bold">Turbo Laravel<br> Bootcamp</p>
                         </div>
                         @include('nav')
                     </nav>
