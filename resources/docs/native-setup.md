@@ -97,16 +97,16 @@ android {
 }
 
 dependencies {
+    def lifecycle_version = '2.5.1'
 
     implementation 'androidx.core:core-ktx:1.9.0'
     implementation 'androidx.appcompat:appcompat:1.5.1'
     implementation 'com.google.android.material:material:1.6.1'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
     implementation 'dev.hotwire:turbo:7.0.0-rc12' // [tl! add:start]
-    implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.5.1'
-    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.5.1'
-    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.5.1'
-    implementation 'androidx.annotation:annotation:1.5.0' // [tl! add:end]
+    implementation "androidx.lifecycle:lifecycle-livedata-ktx:$lifecycle_version"
+    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version"
+    implementation "androidx.lifecycle:lifecycle-runtime-ktx:$lifecycle_version" // [tl! add:end]
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
@@ -193,8 +193,8 @@ class MainSessionNavHostFragment : TurboSessionNavHostFragment() {
 There's a lot going on here, and this code doesn't even work yet. Let's go piece by piece.
 
 1. The `startLocation` property should point to your app's default home page. In our case, it's the `/chirps` page. It could be the `/dashboard`, but we don't have anything there yet;
-2. The `registeredActivities` method should return an empty list of activities in our case. That's only used when we have more than one activity in our app, which isn't our case;
-3. The `registeredFragments` method will return a list of all fragments in our app. It's currently empty, but we'll use it in a bit;
+2. The `registeredActivities` method is only used when we have more than one activity in our app, which isn't our case, so we return an empty list;
+3. The `registeredFragments` method will return a list of all fragments in our app to build the navigation graph. It's currently empty, but we'll use it in a bit;
 4. The `pathConfigurationLocation` returns the location to the path configuration JSON files. This file will have some app specific configurations which can be used for things like feature toggles, but it's also going to have the navigation configuration where we're going to specify which fragments will be used based on the URL pattern (more on that later). Our app should must ship with a default `configuration.json` file, but we could also provide a remote URL for the file that we could control dynamically from our backend server;
 5. We're also configuring the WebView to use the `Turbo Native Android` User Agent header so we can detect in the backend that the request is coming from a Turbo Native client (see more [here](https://turbo-laravel.com/docs/1.x/turbo-native))
 
@@ -441,10 +441,12 @@ Now, it looks a little better. If you try to login, you should see the app looks
 
 ![App Running Chirps Home](/images/native/setup-app-running-chirps-home.png)
 
-There are a bunch of things we can improve here. Some of the interactions we built for the web don't really make sense in a mobile UX point-of-view.
+There are a bunch of things we can improve here. Some of the interactions we built for the web don't really make sense in a mobile UX point-of-view. For instance:
 
-For instance, adding a Chirp inline. Or editing a Chirp inline. These features would usually be done in a native modal screen instead of showing the forms inline. Also, we're currently showing the web navbar at the top of the page, but that's not that useful on mobile, as menu bars and dropdowns like that kind of breaks the illusion of native screens. Same goes for the edit/delete Chirp dropdown. And right now we're only authenticating users inside the WebView using Cookies. However, it's not uncommon to need a fully native screen here and there to enhance the mobile experience. For that, we would need to setup some API routes and handle authentication, for instance.
+* Adding a Chirp inline. Or editing a Chirp inline. These features would usually be done in a native modal screen instead of showing the forms inline
+* We're currently showing the web navbar at the top of the page, but that's not that useful inside the mobile app (it's still useful for users visiting our webapp from mobile device's browsers), as menu bars and dropdowns like that kind of breaks the illusion of native screens. Same goes for the edit/delete Chirp dropdown
+* Right now we're only authenticating users inside the WebView using Cookies. However, it's not uncommon to need a fully native screen here and there to enhance the mobile experience. For that, we would need to setup some API routes and handle authentication
 
-We're gonna solve all that!
+And we're gonna solve all that!
 
 [Continue to native auth screens and Laravel Sanctum...](/native-auth-with-sanctum)
