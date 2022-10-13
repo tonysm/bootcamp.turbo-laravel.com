@@ -1,6 +1,6 @@
 # Native Auth Screens and Laravel Sanctum
 
-Let's tackle the mobile authentication first. We're now able to use the web authentication flow, but as we discussed earlier, sometimes we need to implement fully native screens in our app that do make use of JSON endpoints using an Access Token. For that reason, we're gonna change our login flow just for our Turbo Native Android client. If you were building a Native iOS app, that could also use this same flow.
+Let's tackle the mobile authentication first. We're now able to use the web authentication flow, but as we discussed earlier, sometimes we need to implement fully native screens in our app that uses JSON endpoints with an Access Token. For that reason, we're gonna change our login flow just for our Turbo Native Android client. If you were building a Native iOS app, that could also use this same flow.
 
 Laravel has essentially two first-party packages when it comes to Token-based authentication: [Laravel Sanctum](https://laravel.com/docs/9.x/sanctum) and [Laravel Passport](https://laravel.com/docs/passport).
 
