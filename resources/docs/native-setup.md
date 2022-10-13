@@ -97,7 +97,7 @@ android {
 }
 
 dependencies {
-    def lifecycle_version = '2.5.1'
+    def lifecycle_version = '2.5.1' // [tl! add]
 
     implementation 'androidx.core:core-ktx:1.9.0'
     implementation 'androidx.appcompat:appcompat:1.5.1'

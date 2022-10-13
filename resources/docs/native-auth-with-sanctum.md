@@ -60,7 +60,7 @@ android {
 
 dependencies {
     def lifecycle_version = '2.5.1'
-    def compose_version = '1.3.0-rc01'
+    def compose_version = '1.3.0-rc01' // [tl! add]
     // [tl! collapse:start]
     implementation 'androidx.core:core-ktx:1.9.0'
     implementation 'androidx.appcompat:appcompat:1.5.1'
@@ -587,7 +587,7 @@ Then, migrate the database:
 php artisan migrate
 ```
 
-Now is the exception part. Sanctum's default installation recommends adding the `EnsureFrontendRequestsAreStateful` middleware at the top of the API route group middleware stack. Instead, we're gonna create our own. We're also adding the `TurboMiddleware` to that route group:
+Now is the exception part. Sanctum's default installation recommends adding the `EnsureFrontendRequestsAreStateful` middleware that ships with Sanctum at the top of the API route group middleware stack. Instead, we're gonna create our own. We're also adding the `TurboMiddleware` to that route group:
 
 ```php filename=app/Http/Kernel.php
 <?php
@@ -670,13 +670,13 @@ Now, let's create our own `EnsureFrontendRequestsAreStateful` in the `app/Http/M
 ```php filename=app/Http/Middleware/EnsureFrontendRequestsAreStateful.php
 <?php
 
-namespace Laravel\Sanctum\Http\Middleware;
+namespace App\Http\Middleware;
 
 use Illuminate\Routing\Pipeline;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 
-class EnsureFrontendRequestsAreStateful
+class EnsureTurboNativeRequestsAreStateful
 {
     /**
      * Handle the incoming requests.
