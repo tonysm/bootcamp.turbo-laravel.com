@@ -9,7 +9,7 @@
 - ## Build Turbo Chirper (Native)
     - [Setting up the app](/native-setup)
     - [Native Auth and Sanctum](/native-auth-with-sanctum)
-    - [Adding a Floating Action Button](/native-creating-chirps)
+    - [Adding a Floating Action Button](/native-fab-creating-chirps)
     - [Editing as a modal](/native-editing-modal)
     - [Deleting confirmation](/native-deleting-confirmation)
 - ## [Conclusion](/conclusion)
