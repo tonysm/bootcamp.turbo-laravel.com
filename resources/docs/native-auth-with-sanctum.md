@@ -48,7 +48,7 @@ android {
     kotlinOptions {
         jvmTarget = '1.8'
     }
-    // [tl! collapse:end add:1,7]
+    // [tl! collapse:end add:start]
     buildFeatures {
         viewBinding true
         compose true
@@ -56,6 +56,7 @@ android {
     composeOptions {
         kotlinCompilerExtensionVersion "1.4.0-dev-k1.7.20-RC-a143c065804"
     }
+    // [tl! add:end]
 }
 
 dependencies {
@@ -71,10 +72,10 @@ dependencies {
     implementation "androidx.lifecycle:lifecycle-livedata-ktx:$lifecycle_version"
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version"
     implementation "androidx.lifecycle:lifecycle-runtime-ktx:$lifecycle_version"
-    implementation "androidx.compose.ui:ui:$compose_version" // [tl! add:1,4]
+    implementation "androidx.compose.ui:ui:$compose_version" // [tl! add:start]
     implementation "androidx.compose.material:material:$compose_version"
     implementation "com.squareup.okhttp3:okhttp:4.10.0"
-    implementation "com.google.code.gson:gson:2.9.1"
+    implementation "com.google.code.gson:gson:2.9.1" // [tl! add:end]
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
@@ -107,9 +108,9 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
-        maven { // [tl! add:0,3]
+        maven { // [tl! add:start]
             url "https://androidx.dev/storage/compose-compiler/repository/"
-        }
+        } // [tl! add:end]
     }
 }
 // [tl! collapse:start]
@@ -635,8 +636,8 @@ class Kernel extends HttpKernel
 
         'api' => [
             // \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
-            \Tonysm\TurboLaravel\Http\Middleware\TurboMiddleware::class, // [tl! remove:-1,1 add:0,2]
-            \App\Http\Middleware\EnsureTurboNativeRequestsAreStateful::class,
+            \Tonysm\TurboLaravel\Http\Middleware\TurboMiddleware::class, // [tl! remove:-1,1 add]
+            \App\Http\Middleware\EnsureTurboNativeRequestsAreStateful::class, // [tl! add]
             'throttle:api',
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
         ],
