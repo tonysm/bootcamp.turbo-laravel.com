@@ -349,7 +349,6 @@ interface LoginRequestCallback {
 Next, add the `LoginFragment` also to the `features.auth` package:
 
 ```kotlin
-
 package com.example.turbochirpernative.features.auth
 
 import android.os.Bundle
@@ -391,9 +390,11 @@ class LoginFragment : TurboFragment(), LoginRequestCallback, CsrfTokenCallback {
         savedInstanceState: Bundle?
     ): View {
         return ComposeView(requireContext()).apply {
-            setContent { MaterialTheme {
-                LoginScreen()
-            } }
+            setContent {
+                MaterialTheme {
+                    LoginScreen()
+                }
+            }
         }
     }
 
@@ -407,8 +408,8 @@ class LoginFragment : TurboFragment(), LoginRequestCallback, CsrfTokenCallback {
 
         Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
 
-            val email = remember { mutableStateOf(TextFieldValue("tonysm@hey.com")) }
-            val password = remember { mutableStateOf(TextFieldValue("password")) }
+            val email = remember { mutableStateOf(TextFieldValue("")) }
+            val password = remember { mutableStateOf(TextFieldValue("")) }
 
             Text("Turbo Chirp Native", fontSize = 30.sp, style = TextStyle(fontWeight = FontWeight.Bold))
             Text("Login", fontSize = 24.sp, modifier = Modifier.padding(top = 10.dp))
@@ -469,7 +470,6 @@ class LoginFragment : TurboFragment(), LoginRequestCallback, CsrfTokenCallback {
         }
     }
 }
-
 ```
 
 There's a lot going on in this screen, and we're not gonna talk about it much. The important thing to note here is that we're instanciating the `authClient` as an attribute to the `LoginFragment` instance. This is important because we're storing the CSRF Token, Cookie, and the Laravel Session cookie in the `AuthClient` instance, so we can't just create a new instance of the `AuthClient` whenever we want.
