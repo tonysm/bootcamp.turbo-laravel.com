@@ -348,6 +348,130 @@ interface LoginRequestCallback {
 
 Next, add the `LoginFragment` also to the `features.auth` package:
 
+```kotlin
+
+package com.example.turbochirpernative.features.auth
+
+import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.Toast
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material.Button
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.OutlinedTextField
+import androidx.compose.material.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.example.turbochirpernative.api.AuthClient
+import dev.hotwire.turbo.fragments.TurboFragment
+import dev.hotwire.turbo.nav.TurboNavGraphDestination
+
+@TurboNavGraphDestination(uri = "turbo://fragment/auth/login")
+class LoginFragment : TurboFragment(), LoginRequestCallback, CsrfTokenCallback {
+    private val authClient = AuthClient()
+
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        return ComposeView(requireContext()).apply {
+            setContent { MaterialTheme {
+                LoginScreen()
+            } }
+        }
+    }
+
+    @Composable
+    private fun LoginScreen() {
+        DisposableEffect(true) {
+            fetchCsrfToken()
+
+            onDispose {  }
+        }
+
+        Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
+
+            val email = remember { mutableStateOf(TextFieldValue("tonysm@hey.com")) }
+            val password = remember { mutableStateOf(TextFieldValue("password")) }
+
+            Text("Turbo Chirp Native", fontSize = 30.sp, style = TextStyle(fontWeight = FontWeight.Bold))
+            Text("Login", fontSize = 24.sp, modifier = Modifier.padding(top = 10.dp))
+            Column(modifier = Modifier.padding(vertical = 16.dp)) {
+                OutlinedTextField(
+                    label = { Text("Email") },
+                    singleLine = true,
+                    value = email.value,
+                    onValueChange = { email.value = it }
+                )
+            }
+            Column(modifier = Modifier.padding(vertical = 10.dp)) {
+                OutlinedTextField(
+                    label = { Text("Password") },
+                    singleLine = true,
+                    value = password.value,
+                    onValueChange = { password.value = it },
+                    visualTransformation = PasswordVisualTransformation(),
+                )
+            }
+            Column(modifier = Modifier.padding(vertical = 10.dp)) {
+                Button(onClick = {
+                    if (! email.value.text.isEmpty() && ! password.value.text.isEmpty()) {
+                        authClient.attempt(email.value.text, password.value.text) {
+                            if (it.ok) {
+                                onLoginSucceeded(it.successResponse?.redirectTo + "")
+                            } else {
+                                onLoginFailed(it.failedResponse?.message ?: "Something went wrong!")
+                            }
+                        }
+                    }
+                }) {
+                    Text("Login")
+                }
+            }
+        }
+    }
+
+    override fun onLoginSucceeded(url: String) {
+        activity?.runOnUiThread { navigate(url) }
+    }
+
+    override fun onLoginFailed(msg: String) {
+        activity?.runOnUiThread {
+            Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    override fun onCsrfTokenFetched() {
+        activity?.runOnUiThread {
+            Toast.makeText(context, "CSRF Token fetched!", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun fetchCsrfToken() {
+        authClient.fetchCsrfToken() {
+            onCsrfTokenFetched()
+        }
+    }
+}
+
+```
+
 There's a lot going on in this screen, and we're not gonna talk about it much. The important thing to note here is that we're instanciating the `authClient` as an attribute to the `LoginFragment` instance. This is important because we're storing the CSRF Token, Cookie, and the Laravel Session cookie in the `AuthClient` instance, so we can't just create a new instance of the `AuthClient` whenever we want.
 
 Also, we're calling the `authClient.fetchCsrfToken()` in a `DisposableEffect` to make sure it only calls it once when Compose mounts this screen. Then, whenever the user types non-blank email and password fields to the inputs we have just created, we'll call the `authClient.attempt()` with it. We're using Toast messages here and there to give some feedback on what's going on. That's more for us than for actual users of our app, so feel free to remove those if you want to.
