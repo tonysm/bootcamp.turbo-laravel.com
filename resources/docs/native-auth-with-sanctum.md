@@ -347,3 +347,210 @@ interface LoginRequestCallback {
 ```
 
 Next, add the `LoginFragment` also to the `features.auth` package:
+
+
+Now is the exception part. Sanctum's default installation recommends adding the `EnsureFrontendRequestsAreStateful` middleware that ships with Sanctum at the top of the API route group middleware stack. Instead, we're gonna create our own. We're also adding the `TurboMiddleware` to that route group:
+
+```php
+<?php
+// [tl! collapse:start]
+namespace App\Http;
+
+use Illuminate\Foundation\Http\Kernel as HttpKernel;
+// [tl! collapse:end]
+class Kernel extends HttpKernel
+{
+    // [tl! collapse:start]
+    /**
+     * The application's global HTTP middleware stack.
+     *
+     * These middleware are run during every request to your application.
+     *
+     * @var array<int, class-string|string>
+     */
+    protected $middleware = [
+        // \App\Http\Middleware\TrustHosts::class,
+        \App\Http\Middleware\TrustProxies::class,
+        \Illuminate\Http\Middleware\HandleCors::class,
+        \App\Http\Middleware\PreventRequestsDuringMaintenance::class,
+        \Illuminate\Foundation\Http\Middleware\ValidatePostSize::class,
+        \App\Http\Middleware\TrimStrings::class,
+        \Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull::class,
+    ];
+    // [tl! collapse:end]
+    /**
+     * The application's route middleware groups.
+     *
+     * @var array<string, array<int, class-string|string>>
+     */
+    protected $middlewareGroups = [
+        'web' => [
+            // [tl! collapse:start]
+            \App\Http\Middleware\EncryptCookies::class,
+            \Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class,
+            \Illuminate\Session\Middleware\StartSession::class,
+            \Illuminate\View\Middleware\ShareErrorsFromSession::class,
+            \App\Http\Middleware\VerifyCsrfToken::class,
+            \Illuminate\Routing\Middleware\SubstituteBindings::class,
+            // [tl! collapse:end]
+        ],
+
+        'api' => [
+            // \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
+            \Tonysm\TurboLaravel\Http\Middleware\TurboMiddleware::class, // [tl! remove:-1,1 add]
+            \App\Http\Middleware\EnsureTurboNativeRequestsAreStateful::class, // [tl! add]
+            'throttle:api',
+            \Illuminate\Routing\Middleware\SubstituteBindings::class,
+        ],
+    ];
+    // [tl! collapse:start]
+    /**
+     * The application's route middleware.
+     *
+     * These middleware may be assigned to groups or used individually.
+     *
+     * @var array<string, class-string|string>
+     */
+    protected $routeMiddleware = [
+        'auth' => \App\Http\Middleware\Authenticate::class,
+        'auth.basic' => \Illuminate\Auth\Middleware\AuthenticateWithBasicAuth::class,
+        'auth.session' => \Illuminate\Session\Middleware\AuthenticateSession::class,
+        'cache.headers' => \Illuminate\Http\Middleware\SetCacheHeaders::class,
+        'can' => \Illuminate\Auth\Middleware\Authorize::class,
+        'guest' => \App\Http\Middleware\RedirectIfAuthenticated::class,
+        'password.confirm' => \Illuminate\Auth\Middleware\RequirePassword::class,
+        'signed' => \App\Http\Middleware\ValidateSignature::class,
+        'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
+        'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
+    ];
+    // [tl! collapse:end]
+}
+```
+
+Now, let's create our own `EnsureFrontendRequestsAreStateful` in the `app/Http/Middleware/` folder:
+
+```php
+<?php
+
+namespace App\Http\Middleware;
+
+use Illuminate\Routing\Pipeline;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Str;
+
+class EnsureTurboNativeRequestsAreStateful
+{
+    /**
+     * Handle the incoming requests.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  callable  $next
+     * @return \Illuminate\Http\Response
+     */
+    public function handle($request, $next)
+    {
+        $this->configureSecureCookieSessions();
+
+        return (new Pipeline(app()))->send($request)->through($request->wasFromTurboNative() ? [
+            function ($request, $next) {
+                $request->attributes->set('turbo-native', true);
+
+                return $next($request);
+            },
+            config('turbo-laravel.middleware.encrypt_cookies', \Illuminate\Cookie\Middleware\EncryptCookies::class),
+            \Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class,
+            \Illuminate\Session\Middleware\StartSession::class,
+            config('turbo-laravel.middleware.verify_csrf_token', \Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class),
+        ] : [])->then(function ($request) use ($next) {
+            return $next($request);
+        });
+    }
+
+    /**
+     * Configure secure cookie sessions.
+     *
+     * @return void
+     */
+    protected function configureSecureCookieSessions()
+    {
+        config([
+            'session.http_only' => true,
+            'session.same_site' => 'lax',
+        ]);
+    }
+}
+```
+
+Now, let's add our login route to the `routes/api.php` entrypoint:
+
+```php
+<?php
+// [tl! collapse:start]
+use App\Models\User;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Route;
+use Illuminate\Validation\ValidationException;
+
+/*
+|--------------------------------------------------------------------------
+| API Routes
+|--------------------------------------------------------------------------
+|
+| Here is where you can register API routes for your application. These
+| routes are loaded by the RouteServiceProvider within a group which
+| is assigned the "api" middleware group. Enjoy building your API!
+|
+*/
+// [tl! collapse:end]
+// [tl! add:start]
+Route::post('/login', function (Request $request) {
+    $credentials = $request->validate([
+        'email' => 'required|email',
+        'password' => 'required',
+    ]);
+
+    if (! Auth::attempt($credentials, true)) {
+        throw ValidationException::withMessages([
+            'email' => ['The provided credentials are incorrect.'],
+        ]);
+    }
+
+    $request->session()->regenerate();
+
+    return [
+        'token' => Auth::user()->createToken('Turbo Native')->plainTextToken,
+        'redirectTo' => route('chirps.index'),
+        'data' => [
+            'name' => Auth::user()->name,
+        ],
+    ];
+});
+// [tl! add:end]
+Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
+    return $request->user();
+});
+```
+
+Now, we're ready to test it!
+
+## Testing Out
+
+If you want to, purge all your sessions in the Laravel app by deleting all the files in the `storage/framework/sessions/` folder (assuming you're using the file session driver):
+
+```bash
+rm -f storage/framework/sessions/*
+```
+
+Now, go back to Android Studio and build the client again. You should see the login screen and if you authenticate, you should then be sent to the chirps home page!
+
+![Native Login Screen](/images/native/auth-login-screen.png)
+
+![Invalid Credentials](/images/native/auth-invalid-credentials.png)
+
+![Chirps Home Page After Native Login](/images/native/auth-chirps-home.png)
+
+Our access token is being stored in the preferences section of our app, which means we can reuse it whenever we need to make an HTTP call with a native screen and our WebView is successfully authenticated, so we don't need to worry about those screens that don't need native authentication anymore. Yay! Next, let's take a look at improving our mobile UX for creating Chirps.
+
+[Continue to adding the Native Floating Action Button...](/native-fab-creating-chirps)
