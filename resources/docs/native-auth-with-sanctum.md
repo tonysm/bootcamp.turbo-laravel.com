@@ -348,6 +348,123 @@ interface LoginRequestCallback {
 
 Next, add the `LoginFragment` also to the `features.auth` package:
 
+There's a lot going on in this screen, and we're not gonna talk about it much. The important thing to note here is that we're instanciating the `authClient` as an attribute to the `LoginFragment` instance. This is important because we're storing the CSRF Token, Cookie, and the Laravel Session cookie in the `AuthClient` instance, so we can't just create a new instance of the `AuthClient` whenever we want.
+
+Also, we're calling the `authClient.fetchCsrfToken()` in a `DisposableEffect` to make sure it only calls it once when Compose mounts this screen. Then, whenever the user types non-blank email and password fields to the inputs we have just created, we'll call the `authClient.attempt()` with it. We're using Toast messages here and there to give some feedback on what's going on. That's more for us than for actual users of our app, so feel free to remove those if you want to.
+
+Finally, let's register our fragment in the `MainSessionNavHostFragment`:
+
+```kotlin
+package com.example.turbochirpernative.main
+// [tl! collapse:start]
+import android.webkit.WebView
+import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
+import com.example.turbochirpernative.BuildConfig
+// [tl! collapse:end]
+import com.example.turbochirpernative.features.auth.LoginFragment // [tl! add]
+import com.example.turbochirpernative.features.web.WebFragment
+// [tl! collapse:start]
+import com.example.turbochirpernative.util.CHIRPS_HOME_URL
+import dev.hotwire.turbo.config.TurboPathConfiguration
+import dev.hotwire.turbo.session.TurboSessionNavHostFragment
+import kotlin.reflect.KClass
+// [tl! collapse:end]
+class MainSessionNavHostFragment : TurboSessionNavHostFragment() {
+    // [tl! collapse:start]
+    override val sessionName = "main"
+
+    override val startLocation = CHIRPS_HOME_URL
+
+    override val registeredActivities: List<KClass<out AppCompatActivity>>
+        get() = listOf()
+    // [tl! collapse:end]
+    override val registeredFragments: List<KClass<out Fragment>>
+        get() = listOf(
+            WebFragment::class,
+            LoginFragment::class, // [tl! add]
+        )
+    // [tl! collapse:start]
+    override val pathConfigurationLocation: TurboPathConfiguration.Location
+        get() = TurboPathConfiguration.Location(
+            assetFilePath = "json/configuration.json",
+        )
+
+    override fun onSessionCreated() {
+        super.onSessionCreated()
+        session.webView.settings.userAgentString = customUserAgent(session.webView)
+
+        if (BuildConfig.DEBUG) {
+            session.setDebugLoggingEnabled(true)
+            WebView.setWebContentsDebuggingEnabled(true)
+        }
+    }
+
+    private fun customUserAgent(webView: WebView): String {
+        return "Turbo Native Android ${webView.settings.userAgentString}"
+    }
+    // [tl! collapse:end]
+}
+```
+
+Then, add the new entry to the `assets/json/configuration.json` to tell Turbo to render the `LoginFragment` whenever we're visiting the `/login` route:
+
+```json
+{
+  "settings": {
+    "screenshots_enabled": true
+  },
+  "rules": [
+    {
+      "patterns": [
+        ".*"
+      ],
+      "properties": {
+        "context": "default",
+        "uri": "turbo://fragment/web",
+        "pull_to_refresh_enabled": true
+      }
+    },
+    {
+      "patterns": [
+        "login$",
+        "login/$"
+      ],
+      "properties": {
+        "context": "default",
+        "uri": "turbo://fragment/auth/login",
+        "pull_to_refresh_enabled": false
+      }
+    }
+  ]
+}
+```
+
+This is what the project structure should look like for you:
+
+![Login Screen project structure](/images/native/auth-project-structure-login-screen.png)
+
+Before we're able to test this, we need add Sanctum and our API routes to the Laravel side of our Chirper web app!
+
+## Setting up Sanctum and the API Endpoints
+
+Our Sanctum installation process will follow the docs with one exception. First thing is the Sanctum installation. In the chirper web app root folder, install Sanctum via Composer:
+
+```bash
+composer require laravel/sanctum
+```
+
+Next, publish the configuration file:
+
+```bash
+php artisan vendor:publish --provider="Laravel\Sanctum\SanctumServiceProvider"
+```
+
+Then, migrate the database:
+
+```bash
+php artisan migrate
+```
 
 Now is the exception part. Sanctum's default installation recommends adding the `EnsureFrontendRequestsAreStateful` middleware that ships with Sanctum at the top of the API route group middleware stack. Instead, we're gonna create our own. We're also adding the `TurboMiddleware` to that route group:
 
