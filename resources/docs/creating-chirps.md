@@ -67,9 +67,11 @@ Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
-Route::resource('chirps', ChirpController::class) // [tl! add:start]
+// [tl! add:start]
+Route::resource('chirps', ChirpController::class)
     ->only(['index', 'create', 'store'])
-    ->middleware(['auth', 'verified']); // [tl! add:end]
+    ->middleware(['auth', 'verified']);
+// [tl! add:end]
 
 require __DIR__.'/auth.php';
 ```
@@ -199,8 +201,8 @@ class ChirpController extends Controller
      */
     public function index()
     {
-        return 'Hello, World!'; // [tl! remove]
-        return view('chirps.index', [ // [tl! add:start]
+        return 'Hello, World!';
+        return view('chirps.index', [ // [tl! remove:-1,1 add:start]
             //
         ]);// [tl! add:end]
     }
@@ -213,9 +215,9 @@ class ChirpController extends Controller
     public function create()
     {
         //
-        return view('chirps.create', [// [tl! remove:-1,1 add:start]
+        return view('chirps.create', [ // [tl! remove:-1,1 add:start]
             //
-        ]);// [tl! add:end]
+        ]); // [tl! add:end]
     }
 
     /**
@@ -345,9 +347,11 @@ Update the `layouts.navigation` Blade component provided by Breeze to add a menu
     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
         {{ __('Dashboard') }}
     </x-nav-link>
-    <x-nav-link :href="route('chirps.index')" :active="request()->routeIs('chirps.*')"> <!-- [tl! add:start] -->
+    <!-- [tl! add:start] -->
+    <x-nav-link :href="route('chirps.index')" :active="request()->routeIs('chirps.*')">
         {{ __('Chirps') }}
-    </x-nav-link> <!-- [tl! add:end] -->
+    </x-nav-link>
+    <!-- [tl! add:end] -->
 </div>
 ```
 
@@ -358,9 +362,11 @@ Don't forget the responsive menu used for devices with small screens:
     <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
         {{ __('Dashboard') }}
     </x-responsive-nav-link>
-    <x-responsive-nav-link :href="route('chirps.index')" :active="request()->routeIs('chirps.*')"> <!-- [tl! add:start] -->
+    <!-- [tl! add:start] -->
+    <x-responsive-nav-link :href="route('chirps.index')" :active="request()->routeIs('chirps.*')">
         {{ __('Chirps') }}
-    </x-responsive-nav-link> <!-- [tl! add:end] -->
+    </x-responsive-nav-link>
+    <!-- [tl! add:end] -->
 </div>
 ```
 
@@ -639,7 +645,7 @@ Next, execute the following code to display the Chirps in your database:
 Chirp::all();
 ```
 
-```
+```bash
 => Illuminate\Database\Eloquent\Collection {#4634
      all: [
        App\Models\Chirp {#4636
