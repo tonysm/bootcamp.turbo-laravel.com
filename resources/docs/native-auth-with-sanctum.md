@@ -48,7 +48,8 @@ android {
     kotlinOptions {
         jvmTarget = '1.8'
     }
-    // [tl! collapse:end add:start]
+    // [tl! collapse:end]
+    // [tl! add:start]
     buildFeatures {
         viewBinding true
         compose true
@@ -108,9 +109,11 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
-        maven { // [tl! add:start]
+        // [tl! add:start]
+        maven {
             url "https://androidx.dev/storage/compose-compiler/repository/"
-        } // [tl! add:end]
+        }
+        // [tl! add:end]
     }
 }
 // [tl! collapse:start]
@@ -136,10 +139,11 @@ package com.example.turbochirpernative.util
 
 const val BASE_URL = "http://10.0.2.2"
 const val CHIRPS_HOME_URL = "$BASE_URL/chirps"
-
-const val API_BASE_URL = "$BASE_URL/api" // [tl! add:0,3]
+// [tl! add:start]
+const val API_BASE_URL = "$BASE_URL/api"
 const val API_CSRF_COOKIES_URL = "$BASE_URL/sanctum/csrf-cookie"
 const val API_LOGIN_URL = "$API_BASE_URL/login"
+// [tl! add:end]
 ```
 
 Next, let's create our `AuthClient` to interact with the API. First, add an "api" package to the root of the project (next to the "features" package) by right-clicking on the root package then choosing "New > Package". Inside of it, add a new Kotlin class:
@@ -742,7 +746,8 @@ use Illuminate\Validation\ValidationException;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
-// [tl! collapse:end add:start]
+// [tl! collapse:end]
+// [tl! add:start]
 Route::post('/login', function (Request $request) {
     $credentials = $request->validate([
         'email' => 'required|email',

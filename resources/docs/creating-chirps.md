@@ -44,7 +44,7 @@ We are also going to place these routes behind two [middlewares](https://laravel
 ```php
 <?php
 
-use App\Http\Controllers\ChirpController;// [tl! add]
+use App\Http\Controllers\ChirpController; // [tl! add]
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 // [tl! collapse:start]
@@ -67,9 +67,9 @@ Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
-Route::resource('chirps', ChirpController::class)// [tl! add:start]
+Route::resource('chirps', ChirpController::class) // [tl! add:start]
     ->only(['index', 'create', 'store'])
-    ->middleware(['auth', 'verified']);// [tl! add:end]
+    ->middleware(['auth', 'verified']); // [tl! add:end]
 
 require __DIR__.'/auth.php';
 ```
@@ -104,7 +104,7 @@ class ChirpController extends Controller
     public function index()
     {
         //
-        return 'Hello, World!';// [tl! remove:-1,1 add]
+        return 'Hello, World!'; // [tl! remove:-1,1 add]
     }
     // [tl! collapse:start]
     /**
@@ -199,8 +199,8 @@ class ChirpController extends Controller
      */
     public function index()
     {
-        return 'Hello, World!';// [tl! remove]
-        return view('chirps.index', [// [tl! add:start]
+        return 'Hello, World!'; // [tl! remove]
+        return view('chirps.index', [ // [tl! add:start]
             //
         ]);// [tl! add:end]
     }
@@ -212,8 +212,8 @@ class ChirpController extends Controller
      */
     public function create()
     {
-        // // [tl! remove]
-        return view('chirps.create', [// [tl! add:start]
+        //
+        return view('chirps.create', [// [tl! remove:-1,1 add:start]
             //
         ]);// [tl! add:end]
     }
@@ -345,9 +345,9 @@ Update the `layouts.navigation` Blade component provided by Breeze to add a menu
     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
         {{ __('Dashboard') }}
     </x-nav-link>
-    <x-nav-link :href="route('chirps.index')" :active="request()->routeIs('chirps.*')"><!-- [tl! add:start] -->
+    <x-nav-link :href="route('chirps.index')" :active="request()->routeIs('chirps.*')"> <!-- [tl! add:start] -->
         {{ __('Chirps') }}
-    </x-nav-link><!-- [tl! add:end] -->
+    </x-nav-link> <!-- [tl! add:end] -->
 </div>
 ```
 
@@ -358,9 +358,9 @@ Don't forget the responsive menu used for devices with small screens:
     <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
         {{ __('Dashboard') }}
     </x-responsive-nav-link>
-    <x-responsive-nav-link :href="route('chirps.index')" :active="request()->routeIs('chirps.*')"><!-- [tl! add:start] -->
+    <x-responsive-nav-link :href="route('chirps.index')" :active="request()->routeIs('chirps.*')"> <!-- [tl! add:start] -->
         {{ __('Chirps') }}
-    </x-responsive-nav-link><!-- [tl! add:end] -->
+    </x-responsive-nav-link> <!-- [tl! add:end] -->
 </div>
 ```
 
@@ -412,12 +412,12 @@ class ChirpController extends Controller
     public function store(Request $request)
     {
         //
-        $validated = $request->validate([// [tl! remove:-1,1 add:start]
+        $validated = $request->validate([ // [tl! remove:-1,1 add:start]
             'message' => ['required', 'string', 'max:255'],
         ]);
 
-        $request->user()->chirps()->create($validated);// [tl! add:end]
-
+        $request->user()->chirps()->create($validated);
+        // [tl! add:end]
         return redirect()
             ->route('chirps.index');
     }
@@ -525,11 +525,12 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
-    // [tl! collapse:end]
-    public function chirps()// [tl! add:start]
+    // [tl! collapse:end add:start]
+    public function chirps()
     {
         return $this->hasMany(Chirp::class);
-    }// [tl! add:end]
+    }
+    // [tl! add:end]
 }
 ```
 
@@ -555,10 +556,11 @@ class Chirp extends Model
 {
     // [tl! collapse:start]
     use HasFactory;
-    // [tl! collapse:end]
-    protected $fillable = [// [tl! add:start]
+    // [tl! collapse:end add:start]
+    protected $fillable = [
         'message',
-    ];// [tl! add:end]
+    ];
+    // [tl! add:end]
 }
 ```
 
@@ -586,8 +588,8 @@ return new class extends Migration
     {
         Schema::create('chirps', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->cascadeOnDelete();// [tl! add]
-            $table->string('message');// [tl! add]
+            $table->foreignId('user_id')->constrained()->cascadeOnDelete(); // [tl! add]
+            $table->string('message'); // [tl! add]
             $table->timestamps();
         });
     }
@@ -707,9 +709,9 @@ class ChirpController extends Controller
         $request->user()->chirps()->create($validated);
 
         return redirect()
-            ->route('chirps.index'); // [tl! remove]
-            ->route('chirps.index') // [tl! add:start]
-            ->with('status', __('Chirp created.')); // [tl! add:end]
+            ->route('chirps.index');
+            ->route('chirps.index') // [tl! remove:-1,1 add]
+            ->with('status', __('Chirp created.')); // [tl! add]
     }
     // [tl! collapse:start]
     /**
@@ -765,7 +767,8 @@ Then, let's change our `layouts.app` file to include a `layouts.notifications` p
 ```blade
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-    <head><!-- [tl! collapse:start] -->
+    <head>
+        <!-- [tl! collapse:start] -->
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
@@ -777,11 +780,12 @@ Then, let's change our `layouts.app` file to include a `layouts.notifications` p
 
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
-    </head><!-- [tl! collapse:end] -->
+        <!-- [tl! collapse:end] -->
+    </head>
     <body class="font-sans antialiased">
         <div class="min-h-screen bg-gray-100">
             @include('layouts.navigation')
-            @include('layouts.notifications')<!-- [tl! add]-->
+            @include('layouts.notifications') <!-- [tl! add]-->
             <!-- [tl! collapse:start] -->
             <!-- Page Heading -->
             <header class="bg-white shadow">
@@ -793,7 +797,8 @@ Then, let's change our `layouts.app` file to include a `layouts.notifications` p
             <!-- Page Content -->
             <main>
                 {{ $slot }}
-            </main><!-- [tl! collapse:end] -->
+            </main>
+            <!-- [tl! collapse:end] -->
         </div>
     </body>
 </html>
@@ -822,8 +827,8 @@ We're using a custom CSS animation here I'm calling `appear-then-fade`, let's ad
 ```js
 // [tl! collapse:start]
 const defaultTheme = require('tailwindcss/defaultTheme');
-
-/** @type {import('tailwindcss').Config} */// [tl! collapse:end]
+// [tl! collapse:end]
+/** @type {import('tailwindcss').Config} */
 module.exports = {
     // [tl! collapse:start]
     content: [
@@ -837,8 +842,10 @@ module.exports = {
             // [tl! collapse:start]
             fontFamily: {
                 sans: ['Nunito', ...defaultTheme.fontFamily.sans],
-            },// [tl! collapse:end]
-            keyframes: {// [tl! add:start]
+            },
+            // [tl! collapse:end]
+            // [tl! add:start]
+            keyframes: {
                 'appear-then-fade': {
                     '0%, 100%': {
                         opacity: 0,
@@ -850,11 +857,13 @@ module.exports = {
             },
             animation: {
                 ['appear-then-fade']: 'appear-then-fade 4s ease-in-out both',
-            },// [tl! add:end]
+            },
+            // [tl! add:end]
         },
     },
     // [tl! collapse:start]
-    plugins: [require('@tailwindcss/forms')], // [tl! collapse:end]
+    plugins: [require('@tailwindcss/forms')],
+    // [tl! collapse:end]
 };
 ```
 
