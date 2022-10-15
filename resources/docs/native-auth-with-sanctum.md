@@ -48,8 +48,7 @@ android {
     kotlinOptions {
         jvmTarget = '1.8'
     }
-    // [tl! collapse:end]
-    // [tl! add:start]
+    // [tl! collapse:end add:start]
     buildFeatures {
         viewBinding true
         compose true
@@ -410,10 +409,7 @@ class LoginFragment : TurboFragment(), LoginRequestCallback, CsrfTokenCallback {
             val email = remember { mutableStateOf(TextFieldValue("tonysm@hey.com")) }
             val password = remember { mutableStateOf(TextFieldValue("password")) }
 
-            Text("Turbo Chirp Native", fontSize = 30.sp, style = TextStyle(
-                fontWeight = FontWeight.Bold
-            )
-            )
+            Text("Turbo Chirp Native", fontSize = 30.sp, style = TextStyle(fontWeight = FontWeight.Bold))
             Text("Login", fontSize = 24.sp, modifier = Modifier.padding(top = 10.dp))
             Column(modifier = Modifier.padding(vertical = 16.dp)) {
                 OutlinedTextField(
@@ -594,7 +590,7 @@ php artisan migrate
 
 Now is the exception part. Sanctum's default installation recommends adding the `EnsureFrontendRequestsAreStateful` middleware that ships with Sanctum at the top of the API route group middleware stack. Instead, we're gonna create our own. We're also adding the `TurboMiddleware` to that route group:
 
-```php filename=app/Http/Kernel.php
+```php
 <?php
 // [tl! collapse:start]
 namespace App\Http;
@@ -672,7 +668,7 @@ class Kernel extends HttpKernel
 
 Now, let's create our own `EnsureFrontendRequestsAreStateful` in the `app/Http/Middleware/` folder:
 
-```php filename=app/Http/Middleware/EnsureFrontendRequestsAreStateful.php
+```php
 <?php
 
 namespace App\Http\Middleware;
