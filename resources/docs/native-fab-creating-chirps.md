@@ -4,7 +4,7 @@ Rendering the create chirps form inline right on the homepage isn't the best UX 
 
 ## Hiding the Elements for Turbo Native only
 
-We could technically prevent the entire section from even rendering on requests made by Turbo Native clients using the `@turbonative` Blade directives, something like this:
+We could technically prevent the entire section from even rendering on requests made by Turbo Native clients using the `@unlessturbonative` Blade directives, something like this:
 
 ```blade
 <x-app-layout>
@@ -35,68 +35,36 @@ We could technically prevent the entire section from even rendering on requests 
 
 This would work, but that makes this page harder to cache. Not a problem now, but I prefer doing things like that on the client-side with CSS and a bit of JS.
 
-To get started, let's create a `NativeBridge` module that will handle all the interactions between the native and web apps. Create a `native-bridge.js` file inside the `resources/js/libs` folder with the following contents:
+Since we have configured our WebView to use a custom `User-Agent` header, we can actually detect when our webapp is running inside a Turbo Native client by checking that. Let's first add a helper to check the platform by creating a `resources/js/helpers/platform.js` file with the following contents:
 
 ```js
-class NativeBridge {
-    start() {
-        // Called by the Turbo Native client when the mobile app boots...
-        document.documentElement.classList.add('turbo-native');
-    }
-}
+const { userAgent } = window.navigator;
 
-export default new NativeBridge();
+export const isIos = /iPhone|iPad/.test(userAgent)
+export const isAndroid = /Android/.test(userAgent)
+export const isMobile = isIos || isAndroid
+
+export const isIosApp = /Turbo Native iOS/.test(userAgent)
+export const isAndroidApp = /Turbo Native Android/.test(userAgent)
+export const isMobileApp = isIosApp || isAndroidApp
 ```
 
-Import it in the `app.js` entrypoint and bind it to the window object:
+Now, let's update our `resources/js/app.js` file to add a `turbo-native` class to out HTML document:
 
 ```js
 import './bootstrap';
 import './elements/turbo-echo-stream-tag';
-import './libs/turbo';
-import NativeBridge from './libs/native-bridge'; // [tl! add]
+import './libs';
 import '@github/time-elements';
+import { isMobileApp } from './helpers/platform'; // [tl! add:start]
 
-import Alpine from 'alpinejs';
-
-window.Alpine = Alpine;
-window.NativeBridge = NativeBridge; // [tl! add]
-
-Alpine.start();
-```
-
-We need to call the `NativeBridge.start()` function from inside the Turbo Native client whenever the WebView starts. To do that, we're gonna override the `onVisitCompleted` method in our `features.web.WebFragment` class. Open that in Android Studio and make the following changes:
-
-```kotlin
-// [tl! collapse:start]
-package com.example.turbochirpernative.features.web
-
-import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import com.example.turbochirpernative.R
-import dev.hotwire.turbo.fragments.TurboWebFragment
-import dev.hotwire.turbo.nav.TurboNavGraphDestination
-// [tl! collapse:end]
-@TurboNavGraphDestination(uri = "turbo://fragment/web")
-class WebFragment: TurboWebFragment() {
-
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_web, container, false)
-    }
-    // [tl! add:start]
-    override fun onVisitCompleted(location: String, completedOffline: Boolean) {
-        super.onVisitCompleted(location, completedOffline)
-
-        val script = "window.NativeBridge.start();"
-        session.webView.evaluateJavascript(script, null)
-    }
-    // [tl! add:end]
+if (isMobileApp) {
+    document.documentElement.classList.add('turbo-native');
 }
+// [tl! add:end]
 ```
 
-This will ensure our Turbo Native client calls the method, which adds a `.turbo-native` class to the `<html>` element in our page, but we're not doing anything yet with it. Let's create a custom TailwindCSS modifier that will allow us to make things behave differently when the `.turbo-native` class is present in the document.
+This will ensure that when our webapp runs inside a Turbo Native client, a `.turbo-native` class will be added to the `<html>` element in our page, but we're not doing anything yet with it. Let's create a custom TailwindCSS modifier that will allow us to make things behave differently when the `.turbo-native` class is present in the document.
 
 To do that, open the `tailwind.config.js` file in the root of your Laravel app and make the following changes:
 
