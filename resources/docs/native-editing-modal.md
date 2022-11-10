@@ -51,6 +51,7 @@ import kotlin.reflect.KClass
 
 class MainSessionNavHostFragment : TurboSessionNavHostFragment() {
 class MainSessionNavHostFragment : TurboSessionNavHostFragment(), PopupMenuDelegator { // [tl! remove:-1,1 add]
+    // [tl! collapse:start]
     override val sessionName = "main"
 
     override val startLocation = CHIRPS_HOME_URL
@@ -69,7 +70,7 @@ class MainSessionNavHostFragment : TurboSessionNavHostFragment(), PopupMenuDeleg
         get() = TurboPathConfiguration.Location(
             assetFilePath = "json/configuration.json",
         )
-
+    // [tl! collapse:end]
     override fun onSessionCreated() {
         super.onSessionCreated()
         session.webView.settings.userAgentString = customUserAgent(session.webView)
@@ -349,8 +350,9 @@ switch ($width) {
 
 <div
     class="relative"
+    <!-- [tl! remove:1,1 add:2,1] -->
     data-controller="dropdown"
-    data-controller="bridge--popup-menu dropdown" <!-- [tl! remove:-1,1 add] -->
+    data-controller="bridge--popup-menu dropdown"
     <!-- [tl! add:4,2] -->
     data-action="
         click@window->dropdown#close
