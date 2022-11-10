@@ -347,11 +347,11 @@ switch ($width) {
         break;
 }
 @endphp
-
+ <!-- [tl! add:4,1 remove:3,1] -->
 <div
     class="relative"
     data-controller="dropdown"
-    data-controller="bridge--popup-menu dropdown" <!-- [tl! add remove:-1,1] -->
+    data-controller="bridge--popup-menu dropdown"
     <!-- [tl! add:4,2] -->
     data-action="
         click@window->dropdown#close
