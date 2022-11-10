@@ -888,4 +888,4 @@ Now, our app should be a bit nicer:
 
 ![Edit Chirp as modal](/images/native/web-modal-fragment.png)
 
-[Continue to Chirps Delete Confirmation...](/delete-chirps-confirmation)
+[Continue to Chirps Delete Confirmation...](/native-deleting-confirmation)
