@@ -347,12 +347,11 @@ switch ($width) {
         break;
 }
 @endphp
- <!-- [tl! add:4,1 remove:3,1] -->
+<!-- [tl! add:4,1 remove:3,1] -->
 <div
     class="relative"
     data-controller="dropdown"
     data-controller="bridge--popup-menu dropdown"
-    <!-- [tl! add:4,2] -->
     data-action="
         click@window->dropdown#close
         turbo:load@window->dropdown#close
@@ -361,6 +360,7 @@ switch ($width) {
     "
     {{ $attributes }}
 >
+    <!-- [tl! add:-5,2] -->
     <div data-action="click->dropdown#toggle click->dropdown#stop">
     <div data-action="click->bridge--popup-menu#update click->dropdown#toggle click->dropdown#stop"> <!-- [tl! remove:-1,1 add] -->
         {{ $trigger }}
