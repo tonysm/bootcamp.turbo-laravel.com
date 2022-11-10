@@ -347,13 +347,11 @@ switch ($width) {
         break;
 }
 @endphp
-
+<!-- [tl! remove:3,1 add:4,1 add:8,2] -->
 <div
     class="relative"
-    <!-- [tl! remove:1,1 add:2,1] -->
     data-controller="dropdown"
     data-controller="bridge--popup-menu dropdown"
-    <!-- [tl! add:4,2] -->
     data-action="
         click@window->dropdown#close
         turbo:load@window->dropdown#close
