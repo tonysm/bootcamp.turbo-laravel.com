@@ -350,9 +350,8 @@ switch ($width) {
 
 <div
     class="relative"
-    <!-- [tl! remove:1,1 add:2,1] -->
-    data-controller="dropdown"
-    data-controller="bridge--popup-menu dropdown"
+    data-controller="dropdown" <!-- [tl! remove] -->
+    data-controller="bridge--popup-menu dropdown" <!-- [tl! add] -->
     <!-- [tl! add:4,2] -->
     data-action="
         click@window->dropdown#close
