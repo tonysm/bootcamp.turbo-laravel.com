@@ -12,4 +12,5 @@
     - [Adding a Floating Action Button](/native-fab-creating-chirps)
     - [Editing as a modal](/native-editing-modal)
     - [Deleting confirmation](/native-deleting-confirmation)
+    - [Fixing native flash messages](/native-fix-flash-messages)
 - ## [Conclusion](/conclusion)
