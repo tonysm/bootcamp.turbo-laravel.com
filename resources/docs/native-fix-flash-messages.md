@@ -1,4 +1,4 @@
-# Fix Native Flash Messages
+# Fixing Native Flash Messages
 
 You may have noticed that our flash messages are not behaving correctly in the native side. That's because of how our native client handles redirects. It looks like it actiaves the cache first, which triggers a new request to the web app, then it visits the redirected URL, which then triggers another visit. Our flash messages are flashed for a single subsequent request, which is the one that comes from the activated cache, so they get lost when the redirect visit starts.
 
