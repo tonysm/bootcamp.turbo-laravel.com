@@ -513,4 +513,4 @@ What is cool about this is that we have full control over the text message shown
 
 That's it!
 
-[Continue to the conclusion...](/conclusion.md)
+[Continue to the conclusion...](/conclusion)
