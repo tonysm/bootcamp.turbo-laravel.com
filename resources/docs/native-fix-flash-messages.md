@@ -272,7 +272,7 @@ With that, the flash messages shouldn't appear in Turbo Native clients, but they
 Next, let's create a bridge Stimulus controller that will send a message to the Native client to show convert those web flash messages into native ones.
 
 ```bash
-php artisan stimulus:make bridge/toast
+php artisan stimulus:make bridge/toast_controller
 ```
 
 We'll update the notification view (the singular one) and make it use the controller we just created. It's important to note that the bridge controller needs to be listed before all other controllers:
