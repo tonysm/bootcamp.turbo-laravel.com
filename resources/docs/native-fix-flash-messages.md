@@ -508,8 +508,8 @@ Now, we should have the native Toast messages!
 
 What is cool about this is that we have full control over the text message shown in the notification from our web app! Let's change the message to use an emoji, for instance:
 
-![Flash Messages Deleted With Emoji on Native](/images/native/flash-messages-changed-emoji-native.png)
-![Flash Messages Deleted With Emoji on Web](/images/native/flash-messages-changed-emoji-web.png)
+![Flash Messages Deleted With Emoji on Native](/images/native/flash-message-changed-emoji-native.png)
+![Flash Messages Deleted With Emoji on Web](/images/native/flash-message-changed-emoji-web.png)
 
 That's it!
 
