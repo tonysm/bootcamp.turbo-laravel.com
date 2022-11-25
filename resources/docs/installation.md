@@ -102,16 +102,16 @@ Then, you should be redirected to the Dashboard page:
 
 This Dashboard page is protected by Laravel's auth middleware, so only authenticated users can access it. The registration process automatically authenticates us.
 
-## Installing Turbo
+## Turbo Laravel
 
-Let's install Turbo Laravel, after all this is a Turbo Bootcamp!
+Let's install Turbo Laravel, 'cause this is a Turbo Bootcamp after all!
 
 ```bash
 composer require tonysm/turbo-laravel
 php artisan turbo:install --alpine
 ```
 
-Since we're using Vite, we need to install the NPM dependencies that were added to our `package.json` file and compile the assets again. If you still have the previous `npm run dev` command running, close it with `CTRL+C`, then run:
+Since we're using Vite (for now), we need to install the NPM dependencies that were added to our `package.json` file and compile the assets again. If you still have the previous `npm run dev` command running, close it with `CTRL+C`, then run:
 
 ```bash
 npm install
@@ -121,6 +121,16 @@ npm run dev
 And that's it, actually. Get to the Dashboard page, open the DevTools, go to the Console tab, type `Turbo` there and hit enter. You should see that the global Turbo object is there, which means Turbo was successfully installed!
 
 ![Turbo Installed](/images/turbo-installed.png)
+
+Turbo is successfully installed!
+
+## Importmap Laravel and TailwindCSS Laravel
+
+TODO
+
+## Stimulus Laravel
+
+TODO
 
 Now we're ready for our first feature!
 
