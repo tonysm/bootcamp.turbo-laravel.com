@@ -26,7 +26,13 @@ You should be able to see the welcome page for Laravel on your browser if you vi
 Now, let's configure the app to use the SQLite database driver instead of the MySQL one. Open the `.env` file, delete all `DB_*` entries and replace it with the single connection one:
 
 ```env
-DB_CONNECTION=sqlite
+DB_CONNECTION=sqlite # [tl! add]
+DB_CONNECTION=mysql # [tl! remove:start]
+DB_HOST=mysql
+DB_PORT=3306
+DB_DATABASE=bootcamp.turbo_laravel.com
+DB_USERNAME=sail
+DB_PASSWORD=password # [tl! remove:end]
 ```
 
 Done!
