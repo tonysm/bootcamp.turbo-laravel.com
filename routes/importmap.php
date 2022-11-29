@@ -12,4 +12,5 @@ Importmap::pin("@hotwired/turbo", to: "https://ga.jspm.io/npm:@hotwired/turbo@7.
 Importmap::pin("laravel-echo", to: "https://ga.jspm.io/npm:laravel-echo@1.14.0/dist/echo.js");
 Importmap::pin("pusher-js", to: "https://ga.jspm.io/npm:pusher-js@7.4.0/dist/web/pusher.js");
 Importmap::pin("@hotwired/stimulus", to: "https://ga.jspm.io/npm:@hotwired/stimulus@3.1.0/dist/stimulus.js");
-Importmap::pin("@hotwired/stimulus-loading", to: "vendor/stimulus-laravel/stimulus-loading.js", preload: true);Importmap::pin("el-transition", to: "https://ga.jspm.io/npm:el-transition@0.0.7/index.js");
+Importmap::pin("@hotwired/stimulus-loading", to: "vendor/stimulus-laravel/stimulus-loading.js", preload: true);
+Importmap::pin("el-transition", to: "https://ga.jspm.io/npm:el-transition@0.0.7/index.js");

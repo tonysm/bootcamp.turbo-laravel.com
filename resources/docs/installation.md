@@ -1,6 +1,6 @@
 # Installation
 
-This is the demo app for the Turbo Laravel Bootcamp. The first step is to get the app created and our local setup ready. There are two guides described here, you may choose how you're going to run the app locally as you feel more comfortable.
+Our first step is create the app and setup our local enviroment. There are two guides described here, you may choose how you're going to run the app locally as you feel more comfortable.
 
 ## Local Installation
 
@@ -75,14 +75,14 @@ Done!
 
 ## Laravel Breeze
 
-For our first set of features, we'll need to handle Login and Registration first. Luckily for us, Laravel has a set of Starterkits we can use. In this bootcamp, we're using Breeze because of its simplicity. Let's get that installed:
+Before we start working on our features, we'll first need to handle Login and Registration. Luckily for us, Laravel has a set of Starterkits we can use. In this bootcamp, we're using Breeze because of its simplicity. Let's get that installed:
 
 ```bash
 composer require laravel/breeze --dev
 php artisan breeze:install
 ```
 
-We're using the default Blade flavor of Breeze since it pairs nicely with Turbo. Worth saying we're also using Laravel's frontend setup which relies on Vite. Let's compile our assets:
+We're using the default Blade flavor of Breeze since it pairs nicely with Turbo. We're also using Laravel's frontend setup (for now) which relies on Vite. Let's compile our assets:
 
 ```bash
 npm run dev
@@ -132,9 +132,150 @@ Turbo is successfully installed!
 
 ## Importmap Laravel and TailwindCSS Laravel
 
-TODO
+To get things more interesting, let's install an alternative frontend setup that doesn't require having Node.js and NPM locally. We could stick with Vite, but I found it's hot code replacement feature not that great when working with Turbo. Feel free to skip this part of the tutorial if you want to keep using Vite.
+
+We'll use [Importmap Laravel](https://github.com/tonysm/importmap-laravel) to handle the JS side of things:
+
+```bash
+composer require tonysm/importmap-laravel
+```
+
+Then, let's run the install command:
+
+```bash
+php artisan importmap:install
+```
+
+Now, let's create the symlink that will map our `resources/js/` folder to `public/js` so we can serve our local JS files to the browser. That's only needed when in local, by the way. In production you can use the `php artisan importmap:optimize` command. For now, all we have to do is run Laravel's `storage:link` command:
+
+```bash
+php artisan storage:link
+```
+
+Note: if you're using Sail, remember to prefix this command with `./vendor/bin/sail`, since the symlink needs to be created inside the container.
+
+Next, since we got rid of Vite, we need to install the TailwindCSS Laravel package to handle our CSS compilation:
+
+```bash
+composer require tonysm/tailwindcss-laravel
+```
+
+That's it. Let's download the TailwindCSS CLI binary and compile the assets the first time:
+
+```bash
+php artisan tailwindcss:install
+```
+
+This should update our guest and app layouts to add the link tag including the TailwindCSS file using the `tailwindcss()` function provided by the package.
+
+Now, if you try refreshing the app with the console open, you'll see an error:
+
+![Axios Error](/images/install-axios-error.png)
+
+As of right now, it looks like Axios is not working correctly with ESM and Importmap. But we can use an older version that I know works for sure. Let's first unpin the axios dependency:
+
+```bash
+php artisan importmap:unpin axios
+```
+
+Now, let's pin it again but using the 0.27 version, which I know works:
+
+```bash
+php artisan importmap:pin axios@0.27
+```
+
+If you refresh the page now, the error should be gone and we're now using Importmap!
+
+![Error Gone Importmap Welcome](/images/install-error-gone-importmap-welcome.png)
 
 ## Stimulus Laravel
+
+Our last piece replacing Alpine for Stimulus. Let's start by installing the [Stimulus Laravel](https://github.com/tonysm/stimulus-laravel) package:
+
+```bash
+composer require tonysm/stimulus-laravel
+```
+
+Next, let's run the install command:
+
+```bash
+php artisan stimulus:install
+```
+
+Let's change our main `app.js` file to import the `libs/index.js` file instead of each lib file:
+
+```js
+import 'bootstrap';
+import 'elements/turbo-echo-stream-tag';
+import 'libs/turbo';
+import 'libs/alpine';
+import 'libs'; // [tl! remove:-2,2 add]
+
+import Alpine from 'alpinejs';
+
+window.Alpine = Alpine;
+
+Alpine.start();
+```
+
+Let's change the `dashboard.blade.php` file to make use of our new `hello_controller.js`:
+
+```blade
+<x-app-layout>
+    <x-slot name="header">
+        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+            {{ __('Dashboard') }}
+        </h2>
+    </x-slot>
+
+    <div class="py-12">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                <div class="p-6 text-gray-900">
+                <div class="p-6 text-gray-900" data-controller="hello"> <!-- [tl! remove:-1,1 add] -->
+                    {{ __("You're logged in!") }}
+                </div>
+            </div>
+        </div>
+    </div>
+</x-app-layout>
+```
+
+You should see the "Hello World!" text instead of "You're logged in!", which means our Stimulus controller is loading!
+
+![Stimulus Controller working](/images/install-stimulus-controller-working.png)
+
+Now, we can unpin Alpine:
+
+```bash
+php artisan importmap:unpin alpinejs
+rm resources/js/libs/alpine.js
+```
+
+Now, remove the imports from our main `app.js` file:
+
+```js
+import 'bootstrap';
+import 'elements/turbo-echo-stream-tag';
+import 'libs';
+// [tl! remove:start]
+import Alpine from 'alpinejs';
+
+window.Alpine = Alpine;
+
+Alpine.start();
+// [tl! remove:end]
+```
+
+And from our `libs/index.js` file:
+
+```js
+import 'libs/turbo';
+import 'libs/alpine'; // [tl! remove]
+import 'controllers';
+```
+
+Our dashboard no longer works. We'll need to create a couple of replacements for the dropdown, the modal, nav, and our quick flash message. Let's get started!
 
 TODO
 
