@@ -20,4 +20,4 @@ In the Web Tutorial, we're gonna build our [majestic main web app](https://m.sig
 
 The Native Tutorial (second part of bootcamp) is aimed at showcasing the Turbo Native side of Hotwire. We're gonna use Android and Kotlin to build a fully native wrapper around our web app and [progressively enhance the UX for mobile users](https://m.signalvnoise.com/basecamp-3-for-ios-hybrid-architecture/).
 
-[Start the Native Tutorial...](/native-installation)
+[Start the Native Tutorial...](/native-setup)
