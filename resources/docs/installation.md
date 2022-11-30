@@ -207,9 +207,9 @@ Let's change our main `app.js` file to import the `libs/index.js` file instead o
 ```js
 import 'bootstrap';
 import 'elements/turbo-echo-stream-tag';
-import 'libs/turbo';
-import 'libs/alpine';
-import 'libs'; // [tl! remove:-2,2 add]
+import 'libs/turbo'; // [tl! remove]
+import 'libs/alpine'; // [tl! remove]
+import 'libs'; // [tl! add]
 
 import Alpine from 'alpinejs';
 
@@ -258,13 +258,12 @@ Now, remove the imports from our main `app.js` file:
 import 'bootstrap';
 import 'elements/turbo-echo-stream-tag';
 import 'libs';
-// [tl! remove:start]
-import Alpine from 'alpinejs';
+
+import Alpine from 'alpinejs'; // [tl! remove:start]
 
 window.Alpine = Alpine;
 
-Alpine.start();
-// [tl! remove:end]
+Alpine.start(); // [tl! remove:end]
 ```
 
 And from our `libs/index.js` file:
