@@ -187,3 +187,97 @@ php artisan importmap:pin axios@0.27
 If you refresh the page now, the error should be gone and we're now using Importmap!
 
 ![Error Gone Importmap Welcome](/images/install-error-gone-importmap-welcome.png)
+
+## Stimulus Laravel
+
+Our last piece replacing Alpine for Stimulus. Let's start by installing the [Stimulus Laravel](https://github.com/tonysm/stimulus-laravel) package:
+
+```bash
+composer require tonysm/stimulus-laravel
+```
+
+Next, let's run the install command:
+
+```bash
+php artisan stimulus:install
+```
+
+Let's change our main `app.js` file to import the `libs/index.js` file instead of each lib file:
+
+```js
+import 'bootstrap';
+import 'elements/turbo-echo-stream-tag';
+import 'libs/turbo'; // [tl! remove]
+import 'libs/alpine'; // [tl! remove]
+import 'libs'; // [tl! add]
+
+import Alpine from 'alpinejs';
+
+window.Alpine = Alpine;
+
+Alpine.start();
+```
+
+Let's change the `dashboard.blade.php` file to make use of our new `hello_controller.js`:
+
+```blade
+<x-app-layout>
+    <x-slot name="header">
+        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+            {{ __('Dashboard') }}
+        </h2>
+    </x-slot>
+
+    <div class="py-12">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                <div class="p-6 text-gray-900"> <!-- [tl! remove] -->
+                <div class="p-6 text-gray-900" data-controller="hello"> <!-- [tl! add] -->
+                    {{ __("You're logged in!") }}
+                </div>
+            </div>
+        </div>
+    </div>
+</x-app-layout>
+```
+
+You should see the "Hello World!" text instead of "You're logged in!", which means our Stimulus controller is loading!
+
+![Stimulus Controller working](/images/install-stimulus-controller-working.png)
+
+Now, we can unpin Alpine:
+
+```bash
+php artisan importmap:unpin alpinejs
+rm resources/js/libs/alpine.js
+```
+
+Now, remove the imports from our main `app.js` file:
+
+```js
+import 'bootstrap';
+import 'elements/turbo-echo-stream-tag';
+import 'libs';
+
+import Alpine from 'alpinejs'; // [tl! remove:start]
+
+window.Alpine = Alpine;
+
+Alpine.start(); // [tl! remove:end]
+```
+
+And from our `libs/index.js` file:
+
+```js
+import 'libs/turbo';
+import 'libs/alpine'; // [tl! remove]
+import 'controllers';
+```
+
+Our dashboard no longer works. We'll need to create a couple of replacements for the dropdown, the modal, nav, and our quick flash message. Let's get started!
+
+TODO
+
+Now we're ready for our first feature!
+
+[Continue to creating Chirps...](/creating-chirps)
