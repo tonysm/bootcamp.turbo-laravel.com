@@ -208,8 +208,8 @@ import 'elements/turbo-echo-stream-tag';
 import 'libs/turbo'; // [tl! remove]
 import 'libs/alpine'; // [tl! remove]
 import 'libs'; // [tl! add]
-
-import Alpine from 'alpinejs'; // [tl! remove:start]
+// [tl! remove:start]
+import Alpine from 'alpinejs';
 
 window.Alpine = Alpine;
 
