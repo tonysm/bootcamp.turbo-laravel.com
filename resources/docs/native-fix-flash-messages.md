@@ -238,7 +238,6 @@ open class WebFragment: TurboWebFragment() {
                 false
             }
             RESUME_HISTORICAL_URL -> {
-                navigateUp()
                 false
             }
             else -> super.shouldNavigateTo(newLocation)
