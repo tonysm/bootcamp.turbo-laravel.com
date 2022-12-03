@@ -1,10 +1,10 @@
 # Installation
 
-Our first step is create the app and setup our local enviroment. There are two guides described here, you may choose how you're going to run the app locally as you feel more comfortable.
+Our first step is to create the web app and setup our local environment. There are two paths in here: one uses a local installation setup, and another one that uses [Laravel Sail](https://laravel.com/docs/sail). Choose how you're going to run the app locally as you feel more comfortable.
 
 ## Local Installation
 
-If you'd rather have PHP installed locally and using SQLite, this section is for you. This local setup follows the same approach as the Official Laravel Bootcamp. Let's get started.
+If you'd rather have PHP installed locally and use SQLite, this section is for you. This local setup follows the same approach as the Official Laravel Bootcamp.
 
 The first step is to create the project, which we can do using [Composer](https://getcomposer.org/):
 
@@ -39,7 +39,7 @@ Done!
 
 ## Laravel Sail
 
-Laravel also has a containerized local development environment called [Laravel Sail](https://laravel.com/docs/sail). Let's assume you don't have PHP or Composer installed locally. To create the project, Laravel provides a build script hosted at [https://laravel.build](https://laravel.build/turbo-chirper) which we can use like this:
+Laravel also has a containerized local development environment called [Laravel Sail](https://laravel.com/docs/sail). Let's assume you don't have PHP or Composer installed locally. To create the project, Laravel provides a build script hosted at [https://laravel.build](https://laravel.build/turbo-chirper) which we can use:
 
 ```bash
 curl -s "https://laravel.build/turbo-chirper" | bash
@@ -75,7 +75,7 @@ Done!
 
 ## Laravel Breeze
 
-Before we start working on our features, we'll first need to handle Login and Registration. Luckily for us, Laravel has a set of Starterkits we can use. In this bootcamp, we're using Breeze because of its simplicity. Let's get that installed:
+Before we start working on our features, we'll first need to handle Login and Registration. Luckily for us, Laravel has a set of Starterkits we can use. In this bootcamp, we're going to use Breeze because of its simplicity. Let's get that installed:
 
 ```bash
 composer require laravel/breeze --dev
@@ -124,15 +124,13 @@ npm install
 npm run dev
 ```
 
-And that's it, actually. Get to the Dashboard page, open the DevTools, go to the Console tab, type `Turbo` there and hit enter. You should see that the global Turbo object is there, which means Turbo was successfully installed!
+And that's it! Get to the Dashboard page, open the DevTools, go to the Console tab, type `Turbo` there and hit enter. You should see that the global Turbo object is there, which means Turbo was successfully installed!
 
 ![Turbo Installed](/images/turbo-installed.png)
 
-Turbo is successfully installed!
-
 ## Importmap Laravel and TailwindCSS Laravel
 
-To get things more interesting, let's install an alternative frontend setup that doesn't require having Node.js and NPM locally. We could stick with Vite, but I found it's hot code replacement feature not that great when working with Turbo. Feel free to skip this part of the tutorial if you want to keep using Vite.
+To get things more interesting, let's install an alternative frontend setup that doesn't require having Node and NPM locally. We could stick with Vite, but I found it's hot code replacement feature not that great when working with Turbo. Feel free to skip this part of the tutorial if you want to keep using Vite.
 
 We'll use [Importmap Laravel](https://github.com/tonysm/importmap-laravel) to handle the JS side of things:
 
@@ -152,7 +150,7 @@ Now, let's create the symlink that will map our `resources/js/` folder to `publi
 php artisan storage:link
 ```
 
-Note: if you're using Sail, remember to prefix this command with `./vendor/bin/sail`, since the symlink needs to be created inside the container.
+If you're using Sail, remember to prefix this command with `./vendor/bin/sail`, since the symlink needs to be created inside the container.
 
 Next, since we got rid of Vite, we need to install the TailwindCSS Laravel package to handle our CSS compilation:
 
@@ -166,7 +164,7 @@ That's it. Let's download the TailwindCSS CLI binary and compile the assets the 
 php artisan tailwindcss:install
 ```
 
-This should update our guest and app layouts to add the link tag including the TailwindCSS file using the `tailwindcss()` function provided by the package.
+This should update our guest and app layouts that Breeze created to add the link tag including the TailwindCSS file using the `tailwindcss()` function provided by the package.
 
 Now, if you try refreshing the app with the console open, you'll see an error:
 
@@ -190,7 +188,7 @@ If you refresh the page now, the error should be gone and we're now using Import
 
 ## Stimulus Laravel
 
-Our last piece replacing Alpine for Stimulus. Let's start by installing the [Stimulus Laravel](https://github.com/tonysm/stimulus-laravel) package:
+Our last piece is replacing Alpine for Stimulus. Let's start by installing the [Stimulus Laravel](https://github.com/tonysm/stimulus-laravel) package:
 
 ```bash
 composer require tonysm/stimulus-laravel
@@ -202,7 +200,7 @@ Next, let's run the install command:
 php artisan stimulus:install
 ```
 
-Let's change our main `app.js` file to import the `libs/index.js` file instead of each lib file:
+Let's change our main `app.js` file to import the `libs/index.js` file instead of each lib file and remove the Alpine setup from there as well:
 
 ```js
 import 'bootstrap';
@@ -211,11 +209,26 @@ import 'libs/turbo'; // [tl! remove]
 import 'libs/alpine'; // [tl! remove]
 import 'libs'; // [tl! add]
 
-import Alpine from 'alpinejs';
+import Alpine from 'alpinejs'; // [tl! remove:start]
 
 window.Alpine = Alpine;
 
-Alpine.start();
+Alpine.start(); // [tl! remove:end]
+```
+
+Now, we can unpin Alpine:
+
+```bash
+php artisan importmap:unpin alpinejs
+rm resources/js/libs/alpine.js
+```
+
+Next, remove it from our `libs/index.js` file:
+
+```js
+import 'libs/turbo';
+import 'libs/alpine'; // [tl! remove]
+import 'controllers';
 ```
 
 Let's change the `dashboard.blade.php` file to make use of our new `hello_controller.js`:
@@ -245,36 +258,7 @@ You should see the "Hello World!" text instead of "You're logged in!", which mea
 
 ![Stimulus Controller working](/images/install-stimulus-controller-working.png)
 
-Now, we can unpin Alpine:
-
-```bash
-php artisan importmap:unpin alpinejs
-rm resources/js/libs/alpine.js
-```
-
-Now, remove the imports from our main `app.js` file:
-
-```js
-import 'bootstrap';
-import 'elements/turbo-echo-stream-tag';
-import 'libs';
-
-import Alpine from 'alpinejs'; // [tl! remove:start]
-
-window.Alpine = Alpine;
-
-Alpine.start(); // [tl! remove:end]
-```
-
-And from our `libs/index.js` file:
-
-```js
-import 'libs/turbo';
-import 'libs/alpine'; // [tl! remove]
-import 'controllers';
-```
-
-Our dashboard no longer works. We'll need to create a couple of replacements for the dropdown, the modal, nav, and our quick flash message. Let's get started!
+However, our dashboard no longer works. We'll need to create a couple of replacements for the dropdown, the modal, nav, and our quick flash message. Let's get started!
 
 TODO
 
