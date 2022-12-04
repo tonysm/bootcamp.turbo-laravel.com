@@ -66,11 +66,11 @@ Route::get('/', function () {
 Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
-// [tl! add:start]
-Route::resource('chirps', ChirpController::class)
+
+Route::resource('chirps', ChirpController::class) // [tl! add:start]
     ->only(['index', 'create', 'store'])
-    ->middleware(['auth', 'verified']);
-// [tl! add:end]
+    ->middleware(['auth', 'verified']); // [tl! add:end]
+
 require __DIR__.'/auth.php';
 ```
 
