@@ -460,19 +460,17 @@ Then, let's update the `update-password-form.blade.php` Blade view to use both t
             <x-primary-button>{{ __('Save') }}</x-primary-button>
 
             @if (session('status') === 'password-updated')
-                <!-- [tl! remove:start] --> <p
+                <p
                     x-data="{ show: true }"
                     x-show="show"
                     x-transition
                     x-init="setTimeout(() => show = false, 2000)"
                     class="text-sm text-gray-600 dark:text-gray-400"
-                >{{ __('Saved.') }}</p> <!-- [tl! remove:end] -->
-                <!-- [tl! add:start] --> <p
                     data-turbo-cache="false"
                     data-controller="flash"
                     data-action="animationend->flash#remove"
                     class="text-sm text-gray-600 transition animate-appear-then-fade-out"
-                >{{ __('Saved.') }}</p> <!-- [tl! add] -->
+                >{{ __('Saved.') }}</p> <!-- [tl! remove:-9,5 add:-4,4] -->
             @endif
         </div>
     </form>
@@ -537,22 +535,17 @@ Let's also update the `update-profile-information-form.blade.php` file:
             <x-primary-button>{{ __('Save') }}</x-primary-button>
 
             @if (session('status') === 'profile-updated')
-                <!-- [tl! remove:start] -->
                 <p
                     x-data="{ show: true }"
                     x-show="show"
                     x-transition
                     x-init="setTimeout(() => show = false, 2000)"
                     class="text-sm text-gray-600 dark:text-gray-400"
-                >{{ __('Saved.') }}</p>
-                <!-- [tl! remove:end add:start] -->
-                <p
                     data-turbo-cache="false"
                     data-controller="flash"
                     data-action="animationend->flash#remove"
                     class="text-sm text-gray-600 animate-appear-then-fade-out"
-                >{{ __('Saved.') }}</p>
-                <!-- [tl! add:end] -->
+                >{{ __('Saved.') }}</p> <!-- [tl! remove:-9,5 add:-4,4] -->
             @endif
         </div>
     </form>
@@ -687,7 +680,7 @@ export default class extends Controller {
 }
 ```
 
-Next, replace the `modal.blade.php` component to look like this:
+Next, update the `modal.blade.php` component to look like this:
 
 ```blade
 @props([
@@ -707,6 +700,38 @@ $maxWidth = [
 @endphp
 
 <div
+    x-data="{
+        show: @js($show),
+        focusables() {
+            // All focusable element types...
+            let selector = 'a, button, input:not([type=\'hidden\']), textarea, select, details, [tabindex]:not([tabindex=\'-1\'])'
+            return [...$el.querySelectorAll(selector)]
+                // All non-disabled elements...
+                .filter(el => ! el.hasAttribute('disabled'))
+        },
+        firstFocusable() { return this.focusables()[0] },
+        lastFocusable() { return this.focusables().slice(-1)[0] },
+        nextFocusable() { return this.focusables()[this.nextFocusableIndex()] || this.firstFocusable() },
+        prevFocusable() { return this.focusables()[this.prevFocusableIndex()] || this.lastFocusable() },
+        nextFocusableIndex() { return (this.focusables().indexOf(document.activeElement) + 1) % (this.focusables().length + 1) },
+        prevFocusableIndex() { return Math.max(0, this.focusables().indexOf(document.activeElement)) -1 },
+    }"
+    x-init="$watch('show', value => {
+        if (value) {
+            document.body.classList.add('overflow-y-hidden');
+            {{ $attributes->has('focusable') ? 'setTimeout(() => firstFocusable().focus(), 100)' : '' }}
+        } else {
+            document.body.classList.remove('overflow-y-hidden');
+        }
+    })"
+    x-on:open-modal.window="$event.detail == '{{ $name }}' ? show = true : null"
+    x-on:close.stop="show = false"
+    x-on:keydown.escape.window="show = false"
+    x-on:keydown.tab.prevent="$event.shiftKey || nextFocusable().focus()"
+    x-on:keydown.shift.tab.prevent="prevFocusable().focus()"
+    x-show="show"
+    class="fixed inset-0 overflow-y-auto px-4 py-6 sm:px-0 z-50"
+    style="display: {{ $show ? 'block' : 'none' }};"
     data-controller="modal"
     data-modal-overlay-class="overflow-y-hidden"
     data-modal-open-value="{{ $show ? 'true' : 'false' }}"
@@ -720,8 +745,17 @@ $maxWidth = [
         turbo:before-cache@window->modal#closeNow
     "
     class="{{ $show ? '' : 'hidden' }} fixed inset-0 overflow-y-auto px-4 py-6 sm:px-0 z-50"
->
+> <!-- [tl! remove:-45,32 add:-13,13] -->
     <div
+        x-show="show"
+        class="fixed inset-0 transform transition-all"
+        x-on:click="show = false"
+        x-transition:enter="ease-out duration-300"
+        x-transition:enter-start="opacity-0"
+        x-transition:enter-end="opacity-100"
+        x-transition:leave="ease-in duration-200"
+        x-transition:leave-start="opacity-100"
+        x-transition:leave-end="opacity-0"
         data-action="click->modal#close"
         data-modal-target="overlay"
         class="{{ $show ? '' : 'hidden' }} fixed inset-0 transform transition-all"
@@ -731,11 +765,19 @@ $maxWidth = [
         data-transition-leave="ease-in duration-200"
         data-transition-leave-start="opacity-100"
         data-transition-leave-end="opacity-0"
-    >
+    > <!-- [tl! remove:-18,9 add:-9,9] -->
         <div class="absolute inset-0 bg-gray-500 dark:bg-gray-900 opacity-75"></div>
     </div>
 
     <div
+        x-show="show"
+        class="mb-6 bg-white dark:bg-gray-800 rounded-lg overflow-hidden shadow-xl transform transition-all sm:w-full {{ $maxWidth }} sm:mx-auto"
+        x-transition:enter="ease-out duration-300"
+        x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+        x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
+        x-transition:leave="ease-in duration-200"
+        x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
+        x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
         class="{{ $show ? '' : 'hidden' }} mb-6 bg-white rounded-lg overflow-hidden shadow-xl transform transition-all sm:w-full {{ $maxWidth }} sm:mx-auto"
         data-modal-target="content"
         data-transition-enter="ease-out duration-300"
@@ -744,7 +786,7 @@ $maxWidth = [
         data-transition-leave="ease-in duration-200"
         data-transition-leave-start="opacity-100 translate-y-0 sm:scale-100"
         data-transition-leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-    >
+    > <!-- [tl! remove:-16,8 add:-8,8] -->
         {{ $slot }}
     </div>
 </div>
@@ -791,18 +833,14 @@ Now, let's update the `delete-user-form.blade.php` file to use this controller:
         </p>
     </header>
     <!-- [tl! collapse:end] -->
-    <!-- [tl! remove:start] -->
     <x-danger-button
         x-data=""
         x-on:click.prevent="$dispatch('open-modal', 'confirm-user-deletion')"
-    >{{ __('Delete Account') }}</x-danger-button>
-    <!-- [tl! remove:end add:start] -->
-    <x-danger-button
         data-controller="modal-trigger"
         data-modal-trigger-modal-name-value="confirm-user-deletion"
         data-action="click->modal-trigger#open:prevent"
-    >{{ __('Delete Account') }}</x-danger-button>
-    <!-- [tl! add:end] -->
+    >{{ __('Delete Account') }}</x-danger-button> <!-- [tl! remove:-5,2 add:-3,3] -->
+
     <x-modal name="confirm-user-deletion" :show="$errors->userDeletion->isNotEmpty()" focusable>
         <!-- [tl! collapse:start] -->
         <form method="post" action="{{ route('profile.destroy') }}" class="p-6">
@@ -856,6 +894,7 @@ Now, the only thing remaining that was using Alpine is the navigation. We can us
     <!-- Primary Navigation Menu -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16">
+            <!-- [tl! collapse:start] -->
             <div class="flex">
                 <!-- Logo -->
                 <div class="shrink-0 flex items-center">
@@ -905,7 +944,7 @@ Now, the only thing remaining that was using Alpine is the navigation. We can us
                     </x-slot>
                 </x-dropdown>
             </div>
-
+            <!-- [tl! collapse:end] -->
             <!-- Hamburger -->
             <div class="-mr-2 flex items-center sm:hidden">
                 <button @click="open = ! open" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 dark:text-gray-500 hover:text-gray-500 dark:hover:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-900 focus:outline-none focus:bg-gray-100 dark:focus:bg-gray-900 focus:text-gray-500 dark:focus:text-gray-400 transition duration-150 ease-in-out">
@@ -930,6 +969,7 @@ Now, the only thing remaining that was using Alpine is the navigation. We can us
 
         <!-- Responsive Settings Options -->
         <div class="pt-4 pb-1 border-t border-gray-200 dark:border-gray-600">
+            <!-- [tl! collapse:start] -->
             <div class="px-4">
                 <div class="font-medium text-base text-gray-800 dark:text-gray-200">{{ Auth::user()->name }}</div>
                 <div class="font-medium text-sm text-gray-500">{{ Auth::user()->email }}</div>
@@ -951,6 +991,7 @@ Now, the only thing remaining that was using Alpine is the navigation. We can us
                     </x-responsive-nav-link>
                 </form>
             </div>
+            <!-- [tl! collapse:end] -->
         </div>
     </div>
 </nav>
