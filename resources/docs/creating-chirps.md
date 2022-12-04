@@ -303,7 +303,7 @@ We can then create our front-end `chirps.index` page view with a link to our for
 Then, let's create our `chirps.create` page view with the Chirps form:
 
 ```blade
-<x-app-layout>
+<x-app-layout :title="__('Create Chirp')">
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
             <a href="{{ route('chirps.index') }}" class="underline underline-offset-2 text-indigo-600">Chirps</a> <span class="text-gray-300">/</span> {{ __('New Chirp') }}
@@ -780,6 +780,7 @@ Then, let's change our `layouts.app` file to include a `layouts.notifications` p
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
         <title>{{ config('app.name', 'Laravel') }}</title>
+        <title>{{ $title ?? config('app.name', 'Laravel') }}</title> <!-- [tl! remove:-1,1 add] -->
 
         <!-- Fonts -->
         <link rel="stylesheet" href="https://fonts.bunny.net/css2?family=Nunito:wght@400;600;700&display=swap">
@@ -810,6 +811,34 @@ Then, let's change our `layouts.app` file to include a `layouts.notifications` p
 </html>
 ```
 
+Since we're passing a `title` prop to the layout component, we need to update the `AppLayout.php` PHP class:
+
+```php
+<?php
+
+namespace App\View\Components;
+
+use Illuminate\View\Component;
+
+class AppLayout extends Component
+{
+    // [tl! add:start]
+    public function __construct(public ?string $title = null)
+    {
+    }
+    // [tl! add:end]
+    /**
+     * Get the view / contents that represents the component.
+     *
+     * @return \Illuminate\View\View
+     */
+    public function render()
+    {
+        return view('layouts.app');
+    }
+}
+```
+
 Next, let's create the `layouts.notifications` wrapper partial:
 
 ```blade
@@ -823,57 +852,12 @@ Next, let's create the `layouts.notifications` wrapper partial:
 So, each notification will render with the `layouts.notification` (singular) partial and will be added to the wrapper partial. Let's add the indivitual notification partial:
 
 ```blade
-<div class="py-1 px-4 leading-7 text-center text-white rounded-full bg-gray-900 transition-all animate-appear-then-fade" x-data x-on:animationend="$el.remove()">
+<div class="py-1 px-4 leading-7 text-center text-white rounded-full bg-gray-900 transition-all animate-appear-then-fade-out" data-controller="flash" data-action="animationend->flash#remove">
     {{ $message }}
 </div>
 ```
 
-We're using a custom CSS animation here I'm calling `appear-then-fade`, let's add that to our `tailwind.config.js`:
-
-```js
-// [tl! collapse:start]
-const defaultTheme = require('tailwindcss/defaultTheme');
-// [tl! collapse:end]
-/** @type {import('tailwindcss').Config} */
-module.exports = {
-    // [tl! collapse:start]
-    content: [
-        './vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php',
-        './storage/framework/views/*.php',
-        './resources/views/**/*.blade.php',
-    ],
-    // [tl! collapse:end]
-    theme: {
-        extend: {
-            // [tl! collapse:start]
-            fontFamily: {
-                sans: ['Nunito', ...defaultTheme.fontFamily.sans],
-            },
-            // [tl! collapse:end]
-            // [tl! add:start]
-            keyframes: {
-                'appear-then-fade': {
-                    '0%, 100%': {
-                        opacity: 0,
-                    },
-                    '5%, 60%': {
-                        opacity: 1,
-                    },
-                }
-            },
-            animation: {
-                ['appear-then-fade']: 'appear-then-fade 4s ease-in-out both',
-            },
-            // [tl! add:end]
-        },
-    },
-    // [tl! collapse:start]
-    plugins: [require('@tailwindcss/forms')],
-    // [tl! collapse:end]
-};
-```
-
-Once the CSS animation ends, an `animationend` event is dispatched in the element, so we're listening to that event in Alpine so we can remove the element from the page! Now, you should see a nice flash message appearing at the top of the page, then it goes away after 4 seconds:
+We're making use of our existing `flash` Stimulus controller and also the `animate-appear-then-fade-out` animation CSS class.
 
 ![Flash Messages](/images/creating-chirps-flash-messages.png)
 

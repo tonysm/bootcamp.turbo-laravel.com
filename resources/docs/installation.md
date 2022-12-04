@@ -260,7 +260,769 @@ You should see the "Hello World!" text instead of "You're logged in!", which mea
 
 However, our dashboard no longer works. We'll need to create a couple of replacements for the dropdown, the modal, nav, and our quick flash message. Let's get started!
 
-TODO
+Let's start with the dropdown. We're going to use the [el-transition](https://github.com/mmccall10/el-transition) lib to animate our elements, so let's pin that:
+
+```bash
+php artisan importmap:pin el-transition
+```
+
+Now, let's generate the Stimulus controller:
+
+```bash
+php artisan stimulus:make dropdown_controller
+```
+
+Next, replace its contents with the following:
+
+```js
+import { Controller } from "@hotwired/stimulus"
+import { leave, enter } from "el-transition"
+
+// Connects to data-controller="dropdown"
+export default class extends Controller {
+    static targets = ['trigger', 'menu']
+
+    static values = {
+        open: { type: Boolean, default: false },
+    }
+
+    close(event) {
+        if (! this.openValue) return;
+        if (this.triggerTarget.contains(event.target)) return
+
+        this.openValue = false;
+    }
+
+    toggle() {
+        this.openValue = ! this.openValue;
+    }
+
+    closeNow() {
+        this.menuTarget.classList.add('hidden');
+    }
+
+    openValueChanged() {
+        if (this.openValue) {
+            enter(this.menuTarget)
+        } else {
+            leave(this.menuTarget)
+        }
+    }
+}
+```
+
+Update the dropdown Blade component to look like this:
+
+```blade
+@props(['align' => 'right', 'width' => '48', 'contentClasses' => 'py-1 bg-white'])
+
+@php
+switch ($align) {
+    case 'left':
+        $alignmentClasses = 'origin-top-left left-0';
+        break;
+    case 'top':
+        $alignmentClasses = 'origin-top';
+        break;
+    case 'right':
+    default:
+        $alignmentClasses = 'origin-top-right right-0';
+        break;
+}
+
+switch ($width) {
+    case '48':
+        $width = 'w-48';
+        break;
+}
+@endphp
+
+<div class="relative" data-controller="dropdown" data-action="turbo:before-cache@window->dropdown#closeNow click@window->dropdown#close close->dropdown#close">
+    <div data-action="click->dropdown#toggle" data-dropdown-target="trigger">
+        {{ $trigger }}
+    </div>
+
+    <div
+        data-dropdown-target="menu"
+        data-transition-enter="transition ease-out duration-200"
+        data-transition-enter-start="transform opacity-0 scale-95"
+        data-transition-enter-end="transform opacity-100 scale-100"
+        data-transition-leave="transition ease-in duration-75"
+        data-transition-leave-start="transform opacity-100 scale-100"
+        data-transition-leave-end="transform opacity-0 scale-95"
+        class="absolute z-50 mt-2 {{ $width }} rounded-md shadow-lg {{ $alignmentClasses }} hidden"
+    >
+        <div class="rounded-md ring-1 ring-black ring-opacity-5 {{ $contentClasses }}">
+            {{ $content }}
+        </div>
+    </div>
+</div>
+```
+
+With that, our dropdowns should be working!
+
+![Dropdowns Working Again](/images/installation-dropdown-controller.png)
+
+Next, let's focus on the flash message. For that, we're going to add a new animation to our `tailwind.config.js` file:
+
+```js
+const defaultTheme = require('tailwindcss/defaultTheme');
+
+/** @type {import('tailwindcss').Config} */
+module.exports = {
+    content: [
+        './vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php',
+        './storage/framework/views/*.php',
+        './resources/views/**/*.blade.php',
+    ],
+
+    theme: {
+        extend: {
+            fontFamily: {
+                sans: ['Nunito', ...defaultTheme.fontFamily.sans],
+            },
+            // [tl! add:start]
+            animation: {
+                'appear-then-fade-out': 'appear-then-fade-out 3s both',
+            },
+
+            keyframes: () => ({
+                ['appear-then-fade-out']: {
+                    '0%, 100%': { opacity: 0 },
+                    '10%, 80%': { opacity: 1 },
+                },
+            }), // [tl! add:end]
+        },
+    },
+
+    plugins: [require('@tailwindcss/forms')],
+};
+```
+
+Now, let's generate a new flash Stimulus controller:
+
+```bash
+php artisan stimulus:make flash_controller
+```
+
+Next, replace it with the following contents:
+
+```js
+import { Controller } from "@hotwired/stimulus"
+
+// Connects to data-controller="flash"
+export default class extends Controller {
+    remove() { // [tl! add:start]
+        this.element.remove()
+    } // [tl! add:end]
+}
+```
+
+Then, let's update the `update-password-form.blade.php` Blade view to use both the controller and the new animation. The trick is that we're going to listen to the [animationend CSS event](https://developer.mozilla.org/en-US/docs/Web/API/Element/animationend_event) and once that's done, we're going to remove the element from the DOM. We're also gonna make use of Turbo's [`data-turbo-cache="false"`](https://turbo.hotwired.dev/reference/attributes#data-attributes) to indicate that this element shouldn't be stored in the page cache when we leave the page:
+
+```blade
+<section>
+    <header>
+        <!-- [tl! collapse:start] -->
+        <h2 class="text-lg font-medium text-gray-900">
+            {{ __('Update Password') }}
+        </h2>
+
+        <p class="mt-1 text-sm text-gray-600">
+            {{ __('Ensure your account is using a long, random password to stay secure.') }}
+        </p>
+        <!-- [tl! collapse:end] -->
+    </header>
+
+    <form method="post" action="{{ route('password.update') }}" class="mt-6 space-y-6">
+        <!-- [tl! collapse:start] -->
+        @csrf
+        @method('put')
+
+        <div>
+            <x-input-label for="update_current_password" :value="__('Current Password')" />
+            <x-text-input id="update_current_password" name="current_password" type="password" class="mt-1 block w-full" autocomplete="current-password" />
+            <x-input-error :messages="$errors->updatePassword->get('current_password')" class="mt-2" />
+        </div>
+
+        <div>
+            <x-input-label for="update_password" :value="__('New Password')" />
+            <x-text-input id="update_password" name="password" type="password" class="mt-1 block w-full" autocomplete="new-password" />
+            <x-input-error :messages="$errors->updatePassword->get('password')" class="mt-2" />
+        </div>
+
+        <div>
+            <x-input-label for="update_password_confirmation" :value="__('Confirm Password')" />
+            <x-text-input id="update_password_confirmation" name="password_confirmation" type="password" class="mt-1 block w-full" autocomplete="new-password" />
+            <x-input-error :messages="$errors->updatePassword->get('password_confirmation')" class="mt-2" />
+        </div>
+        <!-- [tl! collapse:end] -->
+        <div class="flex items-center gap-4">
+            <x-primary-button>{{ __('Save') }}</x-primary-button>
+
+            @if (session('status') === 'password-updated')
+                <!-- [tl! remove:start] -->
+                <p
+                    x-data="{ show: true }"
+                    x-show="show"
+                    x-transition
+                    x-init="setTimeout(() => show = false, 2000)"
+                    class="text-sm text-gray-600 dark:text-gray-400"
+                >{{ __('Saved.') }}</p>
+                <!-- [tl! remove:end add:start]-->
+                <p
+                    data-turbo-cache="false"
+                    data-controller="flash"
+                    data-action="animationend->flash#remove"
+                    class="text-sm text-gray-600 transition animate-appear-then-fade-out"
+                >{{ __('Saved.') }}</p>
+                <!-- [tl! add:end] -->
+            @endif
+        </div>
+    </form>
+</section>
+```
+
+Let's also update the `update-profile-information-form.blade.php` file:
+
+```blade
+<section>
+    <!-- [tl! collapse:start] -->
+    <header>
+        <h2 class="text-lg font-medium text-gray-900">
+            {{ __('Profile Information') }}
+        </h2>
+
+        <p class="mt-1 text-sm text-gray-600">
+            {{ __("Update your account's profile information and email address.") }}
+        </p>
+    </header>
+
+    <form id="send-verification" method="post" action="{{ route('verification.send') }}">
+        @csrf
+    </form>
+    <!-- [tl! collapse:end] -->
+    <form method="post" action="{{ route('profile.update') }}" class="mt-6 space-y-6">
+        <!-- [tl! collapse:start] -->
+        @csrf
+        @method('patch')
+
+        <div>
+            <x-input-label for="name" :value="__('Name')" />
+            <x-text-input id="name" name="name" type="text" class="mt-1 block w-full" :value="old('name', $user->name)" required autofocus autocomplete="name" />
+            <x-input-error class="mt-2" :messages="$errors->get('name')" />
+        </div>
+
+        <div>
+            <x-input-label for="email" :value="__('Email')" />
+            <x-text-input id="email" name="email" type="email" class="mt-1 block w-full" :value="old('email', $user->email)" required autocomplete="email" />
+            <x-input-error class="mt-2" :messages="$errors->get('email')" />
+
+            @if ($user instanceof \Illuminate\Contracts\Auth\MustVerifyEmail && ! $user->hasVerifiedEmail())
+                <div>
+                    <p class="text-sm mt-2 text-gray-800">
+                        {{ __('Your email address is unverified.') }}
+
+                        <button form="send-verification" class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                            {{ __('Click here to re-send the verification email.') }}
+                        </button>
+                    </p>
+
+                    @if (session('status') === 'verification-link-sent')
+                        <p class="mt-2 font-medium text-sm text-green-600">
+                            {{ __('A new verification link has been sent to your email address.') }}
+                        </p>
+                    @endif
+                </div>
+            @endif
+        </div>
+        <!-- [tl! collapse:end] -->
+        <div class="flex items-center gap-4">
+            <x-primary-button>{{ __('Save') }}</x-primary-button>
+
+            @if (session('status') === 'profile-updated')
+                <!-- [tl! remove:start] -->
+                <p
+                    x-data="{ show: true }"
+                    x-show="show"
+                    x-transition
+                    x-init="setTimeout(() => show = false, 2000)"
+                    class="text-sm text-gray-600 dark:text-gray-400"
+                >{{ __('Saved.') }}</p>
+                <!-- [tl! remove:end add:start] -->
+                <p
+                    data-turbo-cache="false"
+                    data-controller="flash"
+                    data-action="animationend->flash#remove"
+                    class="text-sm text-gray-600 animate-appear-then-fade-out"
+                >{{ __('Saved.') }}</p>
+                <!-- [tl! add:end] -->
+            @endif
+        </div>
+    </form>
+</section>
+```
+
+Now, let's build the TailwindCSS and then test our app:
+
+```bash
+php artisan tailwindcss:build
+```
+
+You may prefer to keep a watcher running, which you can do by using the `php artisan tailwindcss:watch` command instead of the build one.
+
+Now, the flash messages should appear, then fade away and if you inspect the DOM after they disappear, they should be gone!
+
+![Flash Messages](/images/installation-flash-message.png)
+
+Next, let's fix the modals. Same deal, let's generate the controller:
+
+```bash
+php artisan stimulus:make modal_controller
+```
+
+Then, replace its contents with the following:
+
+```js
+import { Controller } from "@hotwired/stimulus"
+import { enter, leave } from "el-transition";
+
+// Connects to data-controller="modal"
+export default class extends Controller {
+    static targets = ['overlay', 'content'];
+
+    static values = {
+        name: String,
+        open: Boolean,
+        focusable: Boolean,
+    }
+
+    static classes = ['overlay']
+
+    openFromName(event) {
+        if (this.nameValue !== event.detail) return;
+
+        this.openValue = true;
+    }
+
+    close () {
+        this.openValue = false;
+    }
+
+    hijackFocus(event) {
+        event.preventDefault();
+
+        if (event.shiftKey) {
+            this.focusPrevious()
+        } else {
+            this.focusNext()
+        }
+    }
+
+    focusNext() {
+        this.nextFocusable.focus()
+    }
+
+    focusPrevious() {
+        this.prevFocusable.focus()
+    }
+
+    closeNow() {
+        this.overlayTarget.classList.add('hidden')
+        this.contentTarget.classList.add('hidden')
+        document.body.classList.remove(this.overlayClass)
+        this.openValue = false
+    }
+
+    // private
+
+    openValueChanged() {
+        if (this.openValue) {
+            Promise.all([
+                enter(this.element),
+                enter(this.overlayTarget),
+                enter(this.contentTarget),
+            ]).then(() => {
+                if (this.focusableValue) {
+                    this.firstFocusable.focus()
+                    document.body.classList.add(this.overlayClass)
+                }
+            })
+        } else {
+            leave(this.element)
+            leave(this.contentTarget)
+            leave(this.overlayTarget)
+
+            if (this.focusableValue) document.body.classList.remove(this.overlayClass)
+        }
+    }
+
+    get focusables() {
+        let selector = 'a, button, input:not([type=\'hidden\']), textarea, select, details, [tabindex]:not([tabindex=\'-1\'])'
+
+        return [...this.element.querySelectorAll(selector)]
+            // All non-disabled elements...
+            .filter(el => ! el.hasAttribute('disabled'))
+    }
+
+    get firstFocusable() {
+        return this.focusables[0]
+    }
+
+    get lastFocusable() {
+        return this.focusables.slice(-1)[0]
+    }
+
+    get nextFocusable() {
+        return this.focusables[this.nextFocusableIndex] || this.firstFocusable
+    }
+
+    get prevFocusable() {
+        return this.focusables[this.prevFocusableIndex] || this.lastFocusable
+    }
+
+    get nextFocusableIndex() {
+        return this.focusables.indexOf(document.activeElement) + 1 % (this.focusables.length + 1)
+    }
+
+    get prevFocusableIndex() {
+        return Math.max(0, this.focusables.indexOf(document.activeElement) -1)
+    }
+}
+```
+
+Next, let's update the `modal.blade.php` component:
+
+```blade
+@props([
+    'name',
+    'show' => false,
+    'maxWidth' => '2xl'
+])
+
+@php
+$maxWidth = [
+    'sm' => 'sm:max-w-sm',
+    'md' => 'sm:max-w-md',
+    'lg' => 'sm:max-w-lg',
+    'xl' => 'sm:max-w-xl',
+    '2xl' => 'sm:max-w-2xl',
+][$maxWidth];
+@endphp
+<!-- [tl! remove:start] -->
+<div
+    x-data="{
+        show: @js($show),
+        focusables() {
+            // All focusable element types...
+            let selector = 'a, button, input:not([type=\'hidden\']), textarea, select, details, [tabindex]:not([tabindex=\'-1\'])'
+            return [...$el.querySelectorAll(selector)]
+                // All non-disabled elements...
+                .filter(el => ! el.hasAttribute('disabled'))
+        },
+        firstFocusable() { return this.focusables()[0] },
+        lastFocusable() { return this.focusables().slice(-1)[0] },
+        nextFocusable() { return this.focusables()[this.nextFocusableIndex()] || this.firstFocusable() },
+        prevFocusable() { return this.focusables()[this.prevFocusableIndex()] || this.lastFocusable() },
+        nextFocusableIndex() { return (this.focusables().indexOf(document.activeElement) + 1) % (this.focusables().length + 1) },
+        prevFocusableIndex() { return Math.max(0, this.focusables().indexOf(document.activeElement)) -1 },
+    }"
+    x-init="$watch('show', value => {
+        if (value) {
+            document.body.classList.add('overflow-y-hidden');
+            {{ $attributes->has('focusable') ? 'setTimeout(() => firstFocusable().focus(), 100)' : '' }}
+        } else {
+            document.body.classList.remove('overflow-y-hidden');
+        }
+    })"
+    x-on:open-modal.window="$event.detail == '{{ $name }}' ? show = true : null"
+    x-on:close.stop="show = false"
+    x-on:keydown.escape.window="show = false"
+    x-on:keydown.tab.prevent="$event.shiftKey || nextFocusable().focus()"
+    x-on:keydown.shift.tab.prevent="prevFocusable().focus()"
+    x-show="show"
+    class="fixed inset-0 overflow-y-auto px-4 py-6 sm:px-0 z-50"
+    style="display: {{ $show ? 'block' : 'none' }};"
+>
+<!-- [tl! remove:end add:start] -->
+<div
+    data-controller="modal"
+    data-modal-overlay-class="overflow-y-hidden"
+    data-modal-open-value="{{ $show ? 'true' : 'false' }}"
+    data-modal-name-value="{{ $name }}"
+    data-modal-focusable-value="{{ $attributes->has('focusable') ? 'true' : 'false' }}"
+    data-action="
+        open-modal@window->modal#openFromName
+        close->modal#close
+        keydown.esc@window->modal#close
+        keydown.tab->modal#hijackFocus
+        turbo:before-cache@window->modal#closeNow
+    "
+    class="{{ $show ? '' : 'hidden' }} fixed inset-0 overflow-y-auto px-4 py-6 sm:px-0 z-50"
+>
+    <!-- [tl! add:end remove:start] -->
+    <div
+        x-show="show"
+        class="fixed inset-0 transform transition-all"
+        x-on:click="show = false"
+        x-transition:enter="ease-out duration-300"
+        x-transition:enter-start="opacity-0"
+        x-transition:enter-end="opacity-100"
+        x-transition:leave="ease-in duration-200"
+        x-transition:leave-start="opacity-100"
+        x-transition:leave-end="opacity-0"
+    >
+    <!-- [tl! remove:end add:start] -->
+    <div
+        data-action="click->modal#close"
+        data-modal-target="overlay"
+        class="{{ $show ? '' : 'hidden' }} fixed inset-0 transform transition-all"
+        data-transition-enter="ease-out duration-300"
+        data-transition-enter-start="opacity-0"
+        data-transition-enter-end="opacity-100"
+        data-transition-leave="ease-in duration-200"
+        data-transition-leave-start="opacity-100"
+        data-transition-leave-end="opacity-0"
+    >
+    <!-- [tl! add:end] -->
+        <div class="absolute inset-0 bg-gray-500 dark:bg-gray-900 opacity-75"></div>
+    </div>
+    <!-- [tl! remove:start] -->
+    <div
+        x-show="show"
+        class="mb-6 bg-white dark:bg-gray-800 rounded-lg overflow-hidden shadow-xl transform transition-all sm:w-full {{ $maxWidth }} sm:mx-auto"
+        x-transition:enter="ease-out duration-300"
+        x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+        x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
+        x-transition:leave="ease-in duration-200"
+        x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
+        x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+    >
+    <!-- [tl! remove:end add:start] -->
+    <div
+        class="{{ $show ? '' : 'hidden' }} mb-6 bg-white rounded-lg overflow-hidden shadow-xl transform transition-all sm:w-full {{ $maxWidth }} sm:mx-auto"
+        data-modal-target="content"
+        data-transition-enter="ease-out duration-300"
+        data-transition-enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+        data-transition-enter-end="opacity-100 translate-y-0 sm:scale-100"
+        data-transition-leave="ease-in duration-200"
+        data-transition-leave-start="opacity-100 translate-y-0 sm:scale-100"
+        data-transition-leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+    >
+    <!-- [tl! add:end] -->
+        {{ $slot }}
+    </div>
+</div>
+```
+
+The modal will handle a custom event called `open-modal` that may be triggered from anywhere in the page. It expects that event to have the modal name in the event detail. Now, we need a new Stimulus controller that will dispatch that event, since the modal trigger will be outside the modal:
+
+```bash
+php artisan stimulus:make modal_trigger_controller
+```
+
+Update it with the following contents:
+
+```js
+import { Controller } from "@hotwired/stimulus"
+
+// Connects to data-controller="modal-trigger"
+export default class extends Controller {
+    static values = {
+        modalName: String,
+    }
+
+    open() {
+        window.dispatchEvent(new CustomEvent('open-modal', {
+            detail: this.modalNameValue,
+            bubbles: true,
+        }))
+    }
+}
+```
+
+Now, let's update the `delete-user-form.blade.php` file to use this controller:
+
+```blade
+<section class="space-y-6">
+    <!-- [tl! collapse:start] -->
+    <header>
+        <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100">
+            {{ __('Delete Account') }}
+        </h2>
+
+        <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
+            {{ __('Once your account is deleted, all of its resources and data will be permanently deleted. Before deleting your account, please download any data or information that you wish to retain.') }}
+        </p>
+    </header>
+    <!-- [tl! collapse:end remove:start] -->
+    <x-danger-button
+        x-data=""
+        x-on:click.prevent="$dispatch('open-modal', 'confirm-user-deletion')"
+    >{{ __('Delete Account') }}</x-danger-button>
+    <!-- [tl! remove:end add:start] -->
+    <x-danger-button
+        data-controller="modal-trigger"
+        data-modal-trigger-modal-name-value="confirm-user-deletion"
+        data-action="click->modal-trigger#open:prevent"
+    >{{ __('Delete Account') }}</x-danger-button>
+    <!-- [tl! add:end] -->
+    <x-modal name="confirm-user-deletion" :show="$errors->userDeletion->isNotEmpty()" focusable>
+        <!-- [tl! collapse:start] -->
+        <form method="post" action="{{ route('profile.destroy') }}" class="p-6">
+            @csrf
+            @method('delete')
+
+            <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100">Are you sure your want to delete your account?</h2>
+
+            <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
+                {{ __('Once your account is deleted, all of its resources and data will be permanently deleted. Please enter your password to confirm you would like to permanently delete your account.') }}
+            </p>
+
+            <div class="mt-6">
+                <x-input-label for="password" value="Password" class="sr-only" />
+
+                <x-text-input
+                    id="password"
+                    name="password"
+                    type="password"
+                    class="mt-1 block w-3/4"
+                    placeholder="Password"
+                />
+
+                <x-input-error :messages="$errors->userDeletion->get('password')" class="mt-2" />
+            </div>
+
+            <div class="mt-6 flex justify-end">
+                <x-secondary-button x-on:click="$dispatch('close')">
+                    {{ __('Cancel') }}
+                </x-secondary-button>
+
+                <x-danger-button class="ml-3">
+                    {{ __('Delete Account') }}
+                </x-danger-button>
+            </div>
+        </form>
+        <!-- [tl! collapse:end] -->
+    </x-modal>
+</section>
+```
+
+Okay, that should get the modal to open if you try to delete the profile (but remember to cancel it):
+
+![Modal Working Again](/images/installation-modal.png)
+
+Now, the only thing remaining that was using Alpine is the navigation. We can use the existing dropdown controller for that, since it behaves the same:
+
+```blade
+<nav x-data="{ open: false }" class="bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700">
+<nav data-controller="dropdown" data-action="turbo:before-cache@window->modal#closeNow" class="bg-white border-b border-gray-100"> <!-- [tl! remove:-1,1 add]-->
+    <!-- Primary Navigation Menu -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between h-16">
+            <div class="flex">
+                <!-- Logo -->
+                <div class="shrink-0 flex items-center">
+                    <a href="{{ route('dashboard') }}">
+                        <x-application-logo class="block h-9 w-auto fill-current text-gray-800 dark:text-gray-200" />
+                    </a>
+                </div>
+
+                <!-- Navigation Links -->
+                <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex">
+                    <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
+                        {{ __('Dashboard') }}
+                    </x-nav-link>
+                </div>
+            </div>
+
+            <!-- Settings Dropdown -->
+            <div class="hidden sm:flex sm:items-center sm:ml-6">
+                <x-dropdown align="right" width="48">
+                    <x-slot name="trigger">
+                        <button class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white dark:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-300 focus:outline-none transition ease-in-out duration-150">
+                            <div>{{ Auth::user()->name }}</div>
+
+                            <div class="ml-1">
+                                <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                </svg>
+                            </div>
+                        </button>
+                    </x-slot>
+
+                    <x-slot name="content">
+                        <x-dropdown-link :href="route('profile.edit')">
+                            {{ __('Profile') }}
+                        </x-dropdown-link>
+
+                        <!-- Authentication -->
+                        <form method="POST" action="{{ route('logout') }}">
+                            @csrf
+
+                            <x-dropdown-link :href="route('logout')"
+                                    onclick="event.preventDefault();
+                                                this.closest('form').submit();">
+                                {{ __('Log Out') }}
+                            </x-dropdown-link>
+                        </form>
+                    </x-slot>
+                </x-dropdown>
+            </div>
+
+            <!-- Hamburger -->
+            <div class="-mr-2 flex items-center sm:hidden">
+                <button @click="open = ! open" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 dark:text-gray-500 hover:text-gray-500 dark:hover:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-900 focus:outline-none focus:bg-gray-100 dark:focus:bg-gray-900 focus:text-gray-500 dark:focus:text-gray-400 transition duration-150 ease-in-out">
+                <button data-dropdown-target="trigger" data-action="click->dropdown#toggle" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 focus:text-gray-500 transition duration-150 ease-in-out"> <!-- [tl! remove:-1,1 add] -->
+                    <svg class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
+                        <path :class="{'hidden': open, 'inline-flex': ! open }" class="inline-flex" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                        <path :class="{'hidden': ! open, 'inline-flex': open }" class="hidden" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Responsive Navigation Menu -->
+    <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden">
+    <div data-dropdown-target="menu" class="hidden sm:hidden"> <!-- [tl! remove:-1,1 add] -->
+        <div class="pt-2 pb-3 space-y-1">
+            <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
+                {{ __('Dashboard') }}
+            </x-responsive-nav-link>
+        </div>
+
+        <!-- Responsive Settings Options -->
+        <div class="pt-4 pb-1 border-t border-gray-200 dark:border-gray-600">
+            <div class="px-4">
+                <div class="font-medium text-base text-gray-800 dark:text-gray-200">{{ Auth::user()->name }}</div>
+                <div class="font-medium text-sm text-gray-500">{{ Auth::user()->email }}</div>
+            </div>
+
+            <div class="mt-3 space-y-1">
+                <x-responsive-nav-link :href="route('profile.edit')">
+                    {{ __('Profile') }}
+                </x-responsive-nav-link>
+
+                <!-- Authentication -->
+                <form method="POST" action="{{ route('logout') }}">
+                    @csrf
+
+                    <x-responsive-nav-link :href="route('logout')"
+                            onclick="event.preventDefault();
+                                        this.closest('form').submit();">
+                        {{ __('Log Out') }}
+                    </x-responsive-nav-link>
+                </form>
+            </div>
+        </div>
+    </div>
+</nav>
+```
+
+Open the DevTools and view the page in responsive mode and test clicking on the hamburber menu, it should open:
+
+![Responsive Nav](/images/installation-nav.png)
 
 Now we're ready for our first feature!
 

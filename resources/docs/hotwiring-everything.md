@@ -40,7 +40,7 @@ Our application works, but we could improve it. Instead of sending users to a de
 For that to work, we also need to wrap our create form with a matching Turbo Frame (by "matching" I mean same DOM ID):
 
 ```blade filename=resources/views/chirps/create.blade.php
-<x-app-layouts>
+<x-app-layouts :title="__('Create Chirp')">
     <x-slot name="header"><!-- [tl! collapse:start]-->
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
             <a href="{{ route('chirps.index') }}" class="underline underline-offset-2 text-indigo-600">Chirps</a> <span class="text-gray-300">/</span> {{ __('New Chirp') }}
@@ -289,7 +289,7 @@ To do that, we need to tweak our `chirps._chirp` partial and wrap it with a Turb
 Now, let's also update the `chirps.edit` page to add a wrapping Turbo Frame around the form there:
 
 ```blade filename=resources/views/chirps/edit.blade.php
-<x-app-layout>
+<x-app-layout :title="__('Edit Chirp')">
     <!-- [tl! collapse:start] -->
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
@@ -331,7 +331,7 @@ class ChirpController extends Controller
     public function index()
     {
         return view('chirps.index', [
-            'chirps' => Chirp::with('user:id,name')->latest()->get(),
+            'chirps' => Chirp::with('user')->latest()->get(),
         ]);
     }
 
@@ -479,7 +479,7 @@ class ChirpController extends Controller
     public function index()
     {
         return view('chirps.index', [
-            'chirps' => Chirp::with('user:id,name')->latest()->get(),
+            'chirps' => Chirp::with('user')->latest()->get(),
         ]);
     }
 

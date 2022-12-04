@@ -25,7 +25,7 @@ class ChirpController extends Controller
     {
         return view('chirps.index', [
             //
-            'chirps' => Chirp::with('user:id,name')->latest()->get(),// [tl! remove:-1,1 add]
+            'chirps' => Chirp::with('user')->latest()->get(),// [tl! remove:-1,1 add]
         ]);
     }
     // [tl! collapse:start]
@@ -194,25 +194,18 @@ Now take a look in your browser to see the message you Chirped earlier!
 
 Right now our `chirps._chirp` partial formats the date as relative, but that's relative to the time it was rendered, not the current time. We can write it in a way that it would auto-update without requiring a page refresh using [GitHub's Time Elements](https://github.com/github/time-elements) components.
 
-First, install the NPM package:
+First, install JS package:
 
 ```bash
-npm install @github/time-elements
+php artisan importmap:pin @github/time-elements
 ```
 
-Now, import the elements in the `app.js` file:
+Now, import the elements in the `libs/index.js` file:
 
-```js filename=resources/js/app.js
-import './bootstrap';
-import './elements/turbo-echo-stream-tag';
-import './libs/turbo';
+```js filename=resources/js/libs/index.js
+import 'libs/turbo';
+import 'controllers';
 import '@github/time-elements';// [tl! add]
-
-import Alpine from 'alpinejs';
-
-window.Alpine = Alpine;
-
-Alpine.start();
 ```
 
 Let's create an `<x-time-ago />` component that takes a Carbon instance and renders the `<time-ago>` tag we just installed using the package:

@@ -172,7 +172,7 @@ class ChirpController extends Controller
 Now, we need to create our `chirps.edit` view:
 
 ```blade
-<x-app-layout>
+<x-app-layout :title="__('Edit Chirp')">
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
             <a href="{{ route('chirps.index') }}" class="underline underline-offset-2 text-indigo-600">Chirps</a> <span class="text-gray-300">/</span> {{ __('Edit Chirp #:id', ['id' => $chirp->id]) }}
