@@ -460,22 +460,17 @@ Then, let's update the `update-password-form.blade.php` Blade view to use both t
             <x-primary-button>{{ __('Save') }}</x-primary-button>
 
             @if (session('status') === 'password-updated')
-                <!-- [tl! remove:start] -->
                 <p
                     x-data="{ show: true }"
                     x-show="show"
                     x-transition
                     x-init="setTimeout(() => show = false, 2000)"
                     class="text-sm text-gray-600 dark:text-gray-400"
-                >{{ __('Saved.') }}</p>
-                <!-- [tl! remove:end add:start]-->
-                <p
                     data-turbo-cache="false"
                     data-controller="flash"
                     data-action="animationend->flash#remove"
                     class="text-sm text-gray-600 transition animate-appear-then-fade-out"
-                >{{ __('Saved.') }}</p>
-                <!-- [tl! add:end] -->
+                >{{ __('Saved.') }}</p> <!-- [tl! remove:-9,5 add:-4,4] -->
             @endif
         </div>
     </form>
