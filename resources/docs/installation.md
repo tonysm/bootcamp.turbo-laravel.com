@@ -466,11 +466,13 @@ Then, let's update the `update-password-form.blade.php` Blade view to use both t
                     x-transition
                     x-init="setTimeout(() => show = false, 2000)"
                     class="text-sm text-gray-600 dark:text-gray-400"
+                >{{ __('Saved.') }}</p> <!-- [tl! remove:-5,7] -->
+                <p
                     data-turbo-cache="false"
                     data-controller="flash"
                     data-action="animationend->flash#remove"
                     class="text-sm text-gray-600 transition animate-appear-then-fade-out"
-                >{{ __('Saved.') }}</p> <!-- [tl! remove:-9,5 add:-4,4] -->
+                >{{ __('Saved.') }}</p> <!-- [tl! add:-5,6] -->
             @endif
         </div>
     </form>
