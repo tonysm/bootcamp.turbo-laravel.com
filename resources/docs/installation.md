@@ -422,8 +422,8 @@ Then, let's update the `update-password-form.blade.php` Blade view to use both t
 
 ```blade
 <section>
+    <!-- [tl! collapse:start] -->
     <header>
-        <!-- [tl! collapse:start] -->
         <h2 class="text-lg font-medium text-gray-900">
             {{ __('Update Password') }}
         </h2>
@@ -431,9 +431,8 @@ Then, let's update the `update-password-form.blade.php` Blade view to use both t
         <p class="mt-1 text-sm text-gray-600">
             {{ __('Ensure your account is using a long, random password to stay secure.') }}
         </p>
-        <!-- [tl! collapse:end] -->
     </header>
-
+    <!-- [tl! collapse:end] -->
     <form method="post" action="{{ route('password.update') }}" class="mt-6 space-y-6">
         <!-- [tl! collapse:start] -->
         @csrf
@@ -691,7 +690,7 @@ export default class extends Controller {
 }
 ```
 
-Next, let's update the `modal.blade.php` component:
+Next, replace the `modal.blade.php` component to look like this:
 
 ```blade
 @props([
@@ -709,42 +708,7 @@ $maxWidth = [
     '2xl' => 'sm:max-w-2xl',
 ][$maxWidth];
 @endphp
-<!-- [tl! remove:start] -->
-<div
-    x-data="{
-        show: @js($show),
-        focusables() {
-            // All focusable element types...
-            let selector = 'a, button, input:not([type=\'hidden\']), textarea, select, details, [tabindex]:not([tabindex=\'-1\'])'
-            return [...$el.querySelectorAll(selector)]
-                // All non-disabled elements...
-                .filter(el => ! el.hasAttribute('disabled'))
-        },
-        firstFocusable() { return this.focusables()[0] },
-        lastFocusable() { return this.focusables().slice(-1)[0] },
-        nextFocusable() { return this.focusables()[this.nextFocusableIndex()] || this.firstFocusable() },
-        prevFocusable() { return this.focusables()[this.prevFocusableIndex()] || this.lastFocusable() },
-        nextFocusableIndex() { return (this.focusables().indexOf(document.activeElement) + 1) % (this.focusables().length + 1) },
-        prevFocusableIndex() { return Math.max(0, this.focusables().indexOf(document.activeElement)) -1 },
-    }"
-    x-init="$watch('show', value => {
-        if (value) {
-            document.body.classList.add('overflow-y-hidden');
-            {{ $attributes->has('focusable') ? 'setTimeout(() => firstFocusable().focus(), 100)' : '' }}
-        } else {
-            document.body.classList.remove('overflow-y-hidden');
-        }
-    })"
-    x-on:open-modal.window="$event.detail == '{{ $name }}' ? show = true : null"
-    x-on:close.stop="show = false"
-    x-on:keydown.escape.window="show = false"
-    x-on:keydown.tab.prevent="$event.shiftKey || nextFocusable().focus()"
-    x-on:keydown.shift.tab.prevent="prevFocusable().focus()"
-    x-show="show"
-    class="fixed inset-0 overflow-y-auto px-4 py-6 sm:px-0 z-50"
-    style="display: {{ $show ? 'block' : 'none' }};"
->
-<!-- [tl! remove:end add:start] -->
+
 <div
     data-controller="modal"
     data-modal-overlay-class="overflow-y-hidden"
@@ -760,19 +724,6 @@ $maxWidth = [
     "
     class="{{ $show ? '' : 'hidden' }} fixed inset-0 overflow-y-auto px-4 py-6 sm:px-0 z-50"
 >
-    <!-- [tl! add:end remove:start] -->
-    <div
-        x-show="show"
-        class="fixed inset-0 transform transition-all"
-        x-on:click="show = false"
-        x-transition:enter="ease-out duration-300"
-        x-transition:enter-start="opacity-0"
-        x-transition:enter-end="opacity-100"
-        x-transition:leave="ease-in duration-200"
-        x-transition:leave-start="opacity-100"
-        x-transition:leave-end="opacity-0"
-    >
-    <!-- [tl! remove:end add:start] -->
     <div
         data-action="click->modal#close"
         data-modal-target="overlay"
@@ -784,21 +735,9 @@ $maxWidth = [
         data-transition-leave-start="opacity-100"
         data-transition-leave-end="opacity-0"
     >
-    <!-- [tl! add:end] -->
         <div class="absolute inset-0 bg-gray-500 dark:bg-gray-900 opacity-75"></div>
     </div>
-    <!-- [tl! remove:start] -->
-    <div
-        x-show="show"
-        class="mb-6 bg-white dark:bg-gray-800 rounded-lg overflow-hidden shadow-xl transform transition-all sm:w-full {{ $maxWidth }} sm:mx-auto"
-        x-transition:enter="ease-out duration-300"
-        x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-        x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
-        x-transition:leave="ease-in duration-200"
-        x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
-        x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-    >
-    <!-- [tl! remove:end add:start] -->
+
     <div
         class="{{ $show ? '' : 'hidden' }} mb-6 bg-white rounded-lg overflow-hidden shadow-xl transform transition-all sm:w-full {{ $maxWidth }} sm:mx-auto"
         data-modal-target="content"
@@ -809,7 +748,6 @@ $maxWidth = [
         data-transition-leave-start="opacity-100 translate-y-0 sm:scale-100"
         data-transition-leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
     >
-    <!-- [tl! add:end] -->
         {{ $slot }}
     </div>
 </div>
@@ -855,7 +793,8 @@ Now, let's update the `delete-user-form.blade.php` file to use this controller:
             {{ __('Once your account is deleted, all of its resources and data will be permanently deleted. Before deleting your account, please download any data or information that you wish to retain.') }}
         </p>
     </header>
-    <!-- [tl! collapse:end remove:start] -->
+    <!-- [tl! collapse:end] -->
+    <!-- [tl! remove:start] -->
     <x-danger-button
         x-data=""
         x-on:click.prevent="$dispatch('open-modal', 'confirm-user-deletion')"
@@ -916,7 +855,7 @@ Now, the only thing remaining that was using Alpine is the navigation. We can us
 
 ```blade
 <nav x-data="{ open: false }" class="bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700">
-<nav data-controller="dropdown" data-action="turbo:before-cache@window->modal#closeNow" class="bg-white border-b border-gray-100"> <!-- [tl! remove:-1,1 add]-->
+<nav data-controller="dropdown" data-action="turbo:before-cache@window->modal#closeNow" class="bg-white border-b border-gray-100"> <!-- [tl! remove:-1,1 add] -->
     <!-- Primary Navigation Menu -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16">
