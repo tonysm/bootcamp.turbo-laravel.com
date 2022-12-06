@@ -780,7 +780,7 @@ Now, let's update the `delete-user-form.blade.php` file to use this controller:
         data-controller="modal-trigger"
         data-modal-trigger-modal-outlet="#confirm-user-deletion"
         data-action="click->modal-trigger#open:prevent"
-    >{{ __('Delete Account') }}</x-danger-button> <!-- [tl! remove:-5,2 add:-4,5] -->
+    >{{ __('Delete Account') }}</x-danger-button> <!-- [tl! remove:-5,2 add:-4,4] -->
 
     <x-modal name="confirm-user-deletion" :show="$errors->userDeletion->isNotEmpty()" focusable>
         <form method="post" action="{{ route('profile.destroy') }}" class="p-6">
