@@ -10,7 +10,7 @@ Let's update our `routes/web.php` file to add the new `destroy` action in our re
 
 ```php
 <?php
-// [tl! collase:start]
+// [tl! collapse:start]
 use App\Http\Controllers\ChirpController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
@@ -33,7 +33,7 @@ Route::get('/', function () {
 Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
-// [tl! collase:end]
+// [tl! collapse:end]
 Route::resource('chirps', ChirpController::class)
     ->only(['index', 'create', 'store', 'edit', 'update'])
     ->only(['index', 'create', 'store', 'edit', 'update', 'destroy']) // [tl! remove:-1,1 add]
@@ -52,7 +52,7 @@ However, at this point we can get rid of the `->only()` method call. By default,
 
 ```php
 <?php
-// [tl! collase:start]
+// [tl! collapse:start]
 use App\Http\Controllers\ChirpController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
@@ -75,7 +75,7 @@ Route::get('/', function () {
 Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
-// [tl! collase:end]
+// [tl! collapse:end]
 Route::resource('chirps', ChirpController::class)
     ->only(['index', 'create', 'store', 'edit', 'update', 'destroy']) // [tl! remove]
     ->middleware(['auth', 'verified']);
