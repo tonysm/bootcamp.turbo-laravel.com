@@ -581,16 +581,13 @@ export default class extends Controller {
     static targets = ['overlay', 'content'];
 
     static values = {
-        name: String,
         open: Boolean,
         focusable: Boolean,
     }
 
     static classes = ['overlay']
 
-    openFromName(event) {
-        if (this.nameValue !== event.detail) return;
-
+    open() {
         this.openValue = true;
     }
 
@@ -599,8 +596,6 @@ export default class extends Controller {
     }
 
     hijackFocus(event) {
-        event.preventDefault();
-
         if (event.shiftKey) {
             this.focusPrevious()
         } else {
@@ -684,7 +679,7 @@ Next, replace the `modal.blade.php` component with this version:
 
 ```blade
 @props([
-    'name',
+    'id',
     'show' => false,
     'maxWidth' => '2xl'
 ])
@@ -700,16 +695,16 @@ $maxWidth = [
 @endphp
 
 <div
+    id="{{ $id }}"
     data-controller="modal"
     data-modal-overlay-class="overflow-y-hidden"
     data-modal-open-value="{{ $show ? 'true' : 'false' }}"
-    data-modal-name-value="{{ $name }}"
     data-modal-focusable-value="{{ $attributes->has('focusable') ? 'true' : 'false' }}"
     data-action="
-        open-modal@window->modal#openFromName
         close->modal#close
         keydown.esc@window->modal#close
-        keydown.tab->modal#hijackFocus
+        keydown.shift+tab->modal#hijackFocus:prevent
+        keydown.tab->modal#hijackFocus:prevent
         turbo:before-cache@window->modal#closeNow
     "
     class="{{ $show ? '' : 'hidden' }} fixed inset-0 overflow-y-auto px-4 py-6 sm:px-0 z-50"
@@ -756,15 +751,10 @@ import { Controller } from "@hotwired/stimulus"
 
 // Connects to data-controller="modal-trigger"
 export default class extends Controller {
-    static values = {
-        modalName: String,
-    }
+    static outlets = ['modal'];
 
     open() {
-        window.dispatchEvent(new CustomEvent('open-modal', {
-            detail: this.modalNameValue,
-            bubbles: true,
-        }))
+        this.modalOutlet.open();
     }
 }
 ```
@@ -790,13 +780,13 @@ Now, let's update the `delete-user-form.blade.php` file to use this controller:
     >{{ __('Delete Account') }}</x-danger-button> <!-- [tl! remove:-3,4] -->
     <x-danger-button
         data-controller="modal-trigger"
-        data-modal-trigger-modal-name-value="confirm-user-deletion"
+        data-modal-trigger-modal-outlet="#confirm-user-deletion"
         data-action="click->modal-trigger#open:prevent"
     >{{ __('Delete Account') }}</x-danger-button> <!-- [tl! add:-4,5] -->
 
     <x-modal name="confirm-user-deletion" :show="$errors->userDeletion->isNotEmpty()" focusable>
-        <!-- [tl! collapse:start] -->
         <form method="post" action="{{ route('profile.destroy') }}" class="p-6">
+            <!-- [tl! collapse:start] -->
             @csrf
             @method('delete')
 
@@ -819,9 +809,11 @@ Now, let's update the `delete-user-form.blade.php` file to use this controller:
 
                 <x-input-error :messages="$errors->userDeletion->get('password')" class="mt-2" />
             </div>
+            <!-- [tl! collapse:end] -->
 
             <div class="mt-6 flex justify-end">
                 <x-secondary-button x-on:click="$dispatch('close')">
+                <x-secondary-button data-action="click->modal#close:prevent"> <!-- [tl! remove:-1,1 add] -->
                     {{ __('Cancel') }}
                 </x-secondary-button>
 
@@ -830,7 +822,6 @@ Now, let's update the `delete-user-form.blade.php` file to use this controller:
                 </x-danger-button>
             </div>
         </form>
-        <!-- [tl! collapse:end] -->
     </x-modal>
 </section>
 ```
