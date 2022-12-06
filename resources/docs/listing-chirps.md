@@ -208,13 +208,14 @@ import 'controllers';
 import '@github/time-elements';// [tl! add]
 ```
 
-Let's create an `<x-time-ago />` component that takes a Carbon instance and renders the `<time-ago>` tag we just installed using the package:
+Let's create an `<x-relative-time />` component that takes a Carbon instance and renders the `<relative-time>` tag we just installed using the package:
 
-```blade filename=resources/views/components/time-ago.blade.php
+```blade filename=resources/views/components/relative-time.blade.php
 @props(['date'])
-<time-ago datetime="{{ $date->format(DateTime::ISO8601) }}">
+
+<relative-time datetime="{{ $date->format(DateTime::ISO8601) }}">
     {{ $date->toFormattedDateString() }}
-</time-ago>
+</relative-time>
 ```
 
 Then we can use this library in our `chirps._chirp` Blade partial to display relative dates using the newly installed HTML elements:
@@ -230,7 +231,7 @@ Then we can use this library in our `chirps._chirp` Blade partial to display rel
                 <span class="text-gray-800">{{ $chirp->user->name }}</span>
                 <small class="ml-2 text-sm text-gray-600">{{ $chirp->created_at->diffForHumans() }}</small>
                 <small class="ml-2 text-sm text-gray-600"><!-- [tl! remove:-1,1 add:start] -->
-                    <x-time-ago :date="$chirp->created_at" />
+                    <x-relative-time :date="$chirp->created_at" />
                 </small><!-- [tl! add:end] -->
             </div>
         </div>

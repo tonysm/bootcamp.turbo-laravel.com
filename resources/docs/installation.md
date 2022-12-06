@@ -223,10 +223,10 @@ php artisan importmap:unpin alpinejs
 rm resources/js/libs/alpine.js
 ```
 
-Next, remove it from our `libs/index.js` file:
+Next, update the `libs/index.js` file:
 
 ```js
-import 'libs/turbo';
+import 'libs/turbo'; // [tl! add]
 import 'libs/alpine'; // [tl! remove]
 import 'controllers';
 ```

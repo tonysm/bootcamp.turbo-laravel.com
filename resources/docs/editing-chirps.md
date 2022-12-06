@@ -6,6 +6,46 @@ Let's add a feature that's missing from other popular bird-themed microblogging 
 
 First we will update our routes file to enable the `chirps.edit` and `chirps.update` routes for our resource controller:
 
+```php
+<?php
+// [tl! collapse:start]
+use App\Http\Controllers\ChirpController;
+use App\Http\Controllers\ProfileController;
+use Illuminate\Support\Facades\Route;
+
+/*
+|--------------------------------------------------------------------------
+| Web Routes
+|--------------------------------------------------------------------------
+|
+| Here is where you can register web routes for your application. These
+| routes are loaded by the RouteServiceProvider within a group which
+| contains the "web" middleware group. Now create something great!
+|
+*/
+
+Route::get('/', function () {
+    return view('welcome');
+});
+
+Route::get('/dashboard', function () {
+    return view('dashboard');
+})->middleware(['auth', 'verified'])->name('dashboard');
+// [tl! collapse:end]
+Route::resource('chirps', ChirpController::class)
+    ->only(['index', 'create', 'store'])
+    ->only(['index', 'create', 'store', 'edit', 'update']) // [tl! remove:-1,1 add]
+    ->middleware(['auth', 'verified']);
+// [tl! collapse:start]
+Route::middleware('auth')->group(function () {
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+});
+
+require __DIR__.'/auth.php'; // [tl! collapse:end]
+```
+
 Our route table for this controller now looks like this:
 
 Verb      | URI                    | Action       | Route Name
@@ -31,7 +71,9 @@ We're going to use the `<x-dropdown>` component that comes with Breeze, which we
         <div class="flex justify-between items-center">
             <div>
                 <span class="text-gray-800">{{ $chirp->user->name }}</span>
-                <x-time-ago :date="$chirp->created_at" />
+                <small class="ml-2 text-sm text-gray-600">
+                    <x-relative-time :date="$chirp->created_at" />
+                </small>
                 @unless ($chirp->created_at->eq($chirp->updated_at))<!-- [tl! add:start] -->
                 <small class="text-sm text-gray-600"> &middot; edited</small>
                 @endunless<!-- [tl! add:end] -->

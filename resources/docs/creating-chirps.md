@@ -204,7 +204,7 @@ class ChirpController extends Controller
             //
         ]);// [tl! add:end]
     }
-    // [tl! collapse:start]
+
     /**
      * Show the form for creating a new resource.
      *
@@ -217,7 +217,7 @@ class ChirpController extends Controller
             //
         ]); // [tl! add:end]
     }
-
+    // [tl! collapse:start]
     /**
      * Store a newly created resource in storage.
      *
@@ -325,6 +325,75 @@ Then, let's create our `chirps.create` page view with the Chirps form:
 </x-app-layout>
 ```
 
+Since we're passing a `title` prop to the layout component, we need to update the `AppLayout.php` PHP class:
+
+```php
+<?php
+
+namespace App\View\Components;
+
+use Illuminate\View\Component;
+
+class AppLayout extends Component
+{
+    public function __construct(public ?string $title = null)
+    {
+    } // [tl! add:-2,3]
+
+    /**
+     * Get the view / contents that represents the component.
+     *
+     * @return \Illuminate\View\View
+     */
+    public function render()
+    {
+        return view('layouts.app');
+    }
+}
+```
+
+Now, update the `layouts/app.blade.php` file to make use of the new title prop:
+
+```blade
+<!DOCTYPE html>
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="csrf-token" content="{{ csrf_token() }}">
+
+        <title>{{ config('app.name', 'Laravel') }}</title>
+        <title>{{ $title ?? config('app.name', 'Laravel') }}</title> <!-- [tl! remove:-1,1 add] -->
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="https://fonts.bunny.net/css2?family=Nunito:wght@400;600;700&display=swap">
+
+        <!-- Scripts -->
+        @vite(['resources/css/app.css', 'resources/js/app.js'])
+    </head>
+    <body class="font-sans antialiased">
+        <!-- [tl! collapse:start] -->
+        <div class="min-h-screen bg-gray-100">
+            @include('layouts.navigation')
+            @include('layouts.notifications')
+
+            <!-- Page Heading -->
+            <header class="bg-white shadow">
+                <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+                    {{ $header }}
+                </div>
+            </header>
+
+            <!-- Page Content -->
+            <main>
+                {{ $slot }}
+            </main>
+        </div>
+        <!-- [tl! collapse:end] -->
+    </body>
+</html>
+```
+
 That's it! Refresh the page in your browser to see your new form rendered in the default layout provided by Breeze!
 
 ![Creating Chirps Link](/images/creating-chirps-link.png)
@@ -345,11 +414,10 @@ Update the `layouts.navigation` Blade component provided by Breeze to add a menu
     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
         {{ __('Dashboard') }}
     </x-nav-link>
-    <!-- [tl! add:start] -->
+
     <x-nav-link :href="route('chirps.index')" :active="request()->routeIs('chirps.*')">
         {{ __('Chirps') }}
-    </x-nav-link>
-    <!-- [tl! add:end] -->
+    </x-nav-link> <!-- [tl! add:-2,3] -->
 </div>
 ```
 
@@ -360,11 +428,10 @@ Don't forget the responsive menu used for devices with small screens:
     <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
         {{ __('Dashboard') }}
     </x-responsive-nav-link>
-    <!-- [tl! add:start] -->
+
     <x-responsive-nav-link :href="route('chirps.index')" :active="request()->routeIs('chirps.*')">
         {{ __('Chirps') }}
-    </x-responsive-nav-link>
-    <!-- [tl! add:end] -->
+    </x-responsive-nav-link> <!-- [tl! add:-2,3] -->
 </div>
 ```
 
@@ -421,9 +488,8 @@ class ChirpController extends Controller
         ]);
 
         $request->user()->chirps()->create($validated);
-        // [tl! add:end]
-        return redirect()
-            ->route('chirps.index');
+
+        return redirect()->route('chirps.index'); // [tl! add:end]
     }
     // [tl! collapse:start]
     /**
@@ -529,12 +595,11 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
-    // [tl! collapse:end add:start]
+
     public function chirps()
     {
         return $this->hasMany(Chirp::class);
-    }
-    // [tl! add:end]
+    } // [tl! add:-3,4]
 }
 ```
 
@@ -558,13 +623,11 @@ use Illuminate\Database\Eloquent\Model;
 // [tl! collapse:end]
 class Chirp extends Model
 {
-    // [tl! collapse:start]
     use HasFactory;
-    // [tl! collapse:end add:start]
+
     protected $fillable = [
         'message',
-    ];
-    // [tl! add:end]
+    ]; // [tl! add:-2,3]
 }
 ```
 
@@ -592,8 +655,8 @@ return new class extends Migration
     {
         Schema::create('chirps', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->cascadeOnDelete(); // [tl! add]
-            $table->string('message'); // [tl! add]
+            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+            $table->string('message'); // [tl! add:-1,2]
             $table->timestamps();
         });
     }
@@ -714,8 +777,8 @@ class ChirpController extends Controller
 
         return redirect()
             ->route('chirps.index');
-            ->route('chirps.index') // [tl! remove:-1,1 add]
-            ->with('status', __('Chirp created.')); // [tl! add]
+            ->route('chirps.index')
+            ->with('status', __('Chirp created.')); // [tl! remove:-2,1 add:-1,2]
     }
     // [tl! collapse:start]
     /**
@@ -777,8 +840,7 @@ Then, let's change our `layouts.app` file to include a `layouts.notifications` p
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
-        <title>{{ config('app.name', 'Laravel') }}</title>
-        <title>{{ $title ?? config('app.name', 'Laravel') }}</title> <!-- [tl! remove:-1,1 add] -->
+        <title>{{ $title ?? config('app.name', 'Laravel') }}</title>
 
         <!-- Fonts -->
         <link rel="stylesheet" href="https://fonts.bunny.net/css2?family=Nunito:wght@400;600;700&display=swap">
@@ -809,34 +871,6 @@ Then, let's change our `layouts.app` file to include a `layouts.notifications` p
 </html>
 ```
 
-Since we're passing a `title` prop to the layout component, we need to update the `AppLayout.php` PHP class:
-
-```php
-<?php
-
-namespace App\View\Components;
-
-use Illuminate\View\Component;
-
-class AppLayout extends Component
-{
-    // [tl! add:start]
-    public function __construct(public ?string $title = null)
-    {
-    }
-    // [tl! add:end]
-    /**
-     * Get the view / contents that represents the component.
-     *
-     * @return \Illuminate\View\View
-     */
-    public function render()
-    {
-        return view('layouts.app');
-    }
-}
-```
-
 Next, let's create the `layouts.notifications` wrapper partial:
 
 ```blade
@@ -853,6 +887,12 @@ So, each notification will render with the `layouts.notification` (singular) par
 <div class="py-1 px-4 leading-7 text-center text-white rounded-full bg-gray-900 transition-all animate-appear-then-fade-out" data-controller="flash" data-action="animationend->flash#remove">
     {{ $message }}
 </div>
+```
+
+Now, build our TailwindCSS styles:
+
+```bash
+php artisan tailwindcss:build
 ```
 
 We're making use of our existing `flash` Stimulus controller and also the `animate-appear-then-fade-out` animation CSS class.

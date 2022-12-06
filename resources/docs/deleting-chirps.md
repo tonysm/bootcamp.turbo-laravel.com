@@ -6,6 +6,89 @@ Hopefully you're starting to get the hang of things now. We think you'll be impr
 
 ## Routing
 
+Let's update our `routes/web.php` file to add the new `destroy` action in our resource definition:
+
+```php
+<?php
+// [tl! collase:start]
+use App\Http\Controllers\ChirpController;
+use App\Http\Controllers\ProfileController;
+use Illuminate\Support\Facades\Route;
+
+/*
+|--------------------------------------------------------------------------
+| Web Routes
+|--------------------------------------------------------------------------
+|
+| Here is where you can register web routes for your application. These
+| routes are loaded by the RouteServiceProvider within a group which
+| contains the "web" middleware group. Now create something great!
+|
+*/
+
+Route::get('/', function () {
+    return view('welcome');
+});
+
+Route::get('/dashboard', function () {
+    return view('dashboard');
+})->middleware(['auth', 'verified'])->name('dashboard');
+// [tl! collase:end]
+Route::resource('chirps', ChirpController::class)
+    ->only(['index', 'create', 'store', 'edit', 'update'])
+    ->only(['index', 'create', 'store', 'edit', 'update', 'destroy']) // [tl! remove:-1,1 add]
+    ->middleware(['auth', 'verified']);
+// [tl! collapse:start]
+Route::middleware('auth')->group(function () {
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+});
+
+require __DIR__.'/auth.php'; // [tl! collapse:end]
+```
+
+However, at this point we can get rid of the `->only()` method call. By default, Laravel will register all those resource routes when we're using the `resource()` route method. The `->only()` method is useful when you want to limite to only a few of those routes:
+
+```php
+<?php
+// [tl! collase:start]
+use App\Http\Controllers\ChirpController;
+use App\Http\Controllers\ProfileController;
+use Illuminate\Support\Facades\Route;
+
+/*
+|--------------------------------------------------------------------------
+| Web Routes
+|--------------------------------------------------------------------------
+|
+| Here is where you can register web routes for your application. These
+| routes are loaded by the RouteServiceProvider within a group which
+| contains the "web" middleware group. Now create something great!
+|
+*/
+
+Route::get('/', function () {
+    return view('welcome');
+});
+
+Route::get('/dashboard', function () {
+    return view('dashboard');
+})->middleware(['auth', 'verified'])->name('dashboard');
+// [tl! collase:end]
+Route::resource('chirps', ChirpController::class)
+    ->only(['index', 'create', 'store', 'edit', 'update', 'destroy']) // [tl! remove]
+    ->middleware(['auth', 'verified']);
+// [tl! collapse:start]
+Route::middleware('auth')->group(function () {
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+});
+
+require __DIR__.'/auth.php'; // [tl! collapse:end]
+```
+
 Our route table for this controller now looks like this:
 
 Verb      | URI                    | Action       | Route Name
@@ -131,7 +214,7 @@ class ChirpController extends Controller
     public function destroy(Chirp $chirp)
     {
         //
-        $this->authorize('destroy', $chirp);// [tl! remove:-1,1 add:start]
+        $this->authorize('delete', $chirp);// [tl! remove:-1,1 add:start]
 
         $chirp->delete();
 
