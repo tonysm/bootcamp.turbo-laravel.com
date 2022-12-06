@@ -226,8 +226,8 @@ rm resources/js/libs/alpine.js
 Next, update the `libs/index.js` file:
 
 ```js
-import 'libs/turbo'; // [tl! add]
-import 'libs/alpine'; // [tl! remove]
+import 'libs/turbo';
+import 'libs/alpine'; // [tl! remove add:-1,1]
 import 'controllers';
 ```
 
