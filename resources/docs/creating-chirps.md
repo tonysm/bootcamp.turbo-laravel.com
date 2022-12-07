@@ -180,7 +180,7 @@ If you are still logged in from earlier, you should see your message when naviga
 
 ### Adding The Form
 
-Let's update our `index` action in the `ChirpController` to render the view that will display the listing of Chirps, but also the link to create a Chirp:
+Let's update our `index` action in the `ChirpController` to render the view that will display the listing of Chirps and a link to create a Chirp. We'll also update the `create` action to render the view that will display the form to create Chirps:
 
 ```php
 <?php
@@ -277,9 +277,9 @@ class ChirpController extends Controller
 }
 ```
 
-We can then create our front-end `chirps.index` page view with a link to our form for creating new Chirps:
+We can then create our `chirps.index` view with a link to our form for creating new Chirps:
 
-```blade
+```blade filename=resources/views/chirps/index.blade.php
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
@@ -300,7 +300,7 @@ We can then create our front-end `chirps.index` page view with a link to our for
 
 Then, let's create our `chirps.create` page view with the Chirps form:
 
-```blade
+```blade filename=resources/views/chirps/create.blade.php
 <x-app-layout :title="__('Create Chirp')">
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
@@ -406,9 +406,9 @@ If you click on that link, you will see the form to create Chirps and the breadc
 
 Let's take a moment to add a link to the navigation menu provided by Breeze.
 
-Update the `layouts.navigation` Blade component provided by Breeze to add a menu item for desktop screens:
+Update the `navigation` Blade component provided by Breeze to add a menu item for desktop screens:
 
-```blade
+```blade filename=resources/views/components/navigation.blade.php
 <!-- Navigation Links -->
 <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex">
     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
@@ -423,7 +423,7 @@ Update the `layouts.navigation` Blade component provided by Breeze to add a menu
 
 Don't forget the responsive menu used for devices with small screens:
 
-```blade
+```blade filename=resources/views/components/navigation.blade.php
 <div class="pt-2 pb-3 space-y-1">
     <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
         {{ __('Dashboard') }}
@@ -443,7 +443,7 @@ We should see the Chirps link on the page nav now:
 
 Our form has been configured to post messages to the `chirps.store` route that we created earlier. Let's update the `store` action on our `ChirpController` class to validate the data and create a new Chirp:
 
-```php
+```php filename=app/Http/Controllers/ChirpController.php
 <?php
 // [tl! collapse:start]
 namespace App\Http\Controllers;
@@ -613,7 +613,7 @@ Laravel protects you from accidentally doing this by blocking mass assignment by
 
 Let's add the `$fillable` property to our `Chirp` model to enable mass-assignment for the `message` attribute:
 
-```php
+```php filename=app/Models/Chirp.hp
 <?php
 // [tl! collapse:start]
 namespace App\Models;
@@ -637,7 +637,7 @@ You can learn more about Laravel's mass assignment protection in the [documentat
 
 The only thing missing is extra columns in our database to store the relationship between a `Chirp` and its `User` and the message itself. Remember the database migration we created earlier? It's time to open that file to add some extra columns:
 
-```php
+```php filename=database/migrations/{timestamp}_create_chirps_table.php
 <?php
 // [tl! collapse:start]
 use Illuminate\Database\Migrations\Migration;
@@ -676,7 +676,7 @@ return new class extends Migration
 
 We haven't migrated the database since we added this migration, so let do it now:
 
-```php
+```bash
 php artisan migrate
 ```
 
@@ -703,7 +703,7 @@ php artisan tinker
 Next, execute the following code to display the Chirps in your database:
 
 ```php
-Chirp::all();
+App\Model\Chirp::all();
 ```
 
 ```bash
@@ -724,9 +724,9 @@ You may exit Tinker by using the `exit` command, or by pressing `Ctrl` + `c`.
 
 ## Flash Messages
 
-Before we move one from creating Chirps, let's add the ability to show flash messages to the users. This may be useful to tell them that something happened in our app.
+Before we move on from creating Chirps, let's add the ability to show flash messages to the users. This may be useful to tell them that something happened in our app.
 
-Since we're redirecting the user to another page and redirects happens in the browser (client side), we'd need a way to store messages across requests. Laravel has a feature called [Flash Data](https://laravel.com/docs/session#flash-data) which does exactly that! With that, we can safely store a flash message into the session, just so we can retrive it from there after the redirect happens in the user's browser.
+Since we're redirecting the user to another page and redirects happens in the browser (client side), we'd need a way to store messages across requests. Laravel has a feature called [Flash Data](https://laravel.com/docs/session#flash-data) which does exactly that! With that, we can safely store a flash message in the user's session, just so we can retrive it from there after the redirect happens in the user's browser.
 
 Let's update our `store` action in the `ChirpController` to also return a flash message named `status` in the redirect:
 
