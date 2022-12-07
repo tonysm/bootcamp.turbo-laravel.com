@@ -1,60 +1,61 @@
 # Installation
 
-Our first step is to create the web app and setup our local environment. There are two paths in here: one uses a local installation setup, and another one that uses [Laravel Sail](https://laravel.com/docs/sail). Choose how you're going to run the app locally as you feel more comfortable.
+Our first step is to create the web app and setup our local environment.
 
-## Local Installation
+## Installing Laravel
 
-If you'd rather have PHP installed locally and use SQLite, this section is for you. This local setup follows the same approach as the Official Laravel Bootcamp.
+There are two paths in here: one uses a local installation setup, and another one that uses [Laravel Sail](https://laravel.com/docs/sail). Choose how you're going to run the app locally as you feel more comfortable.
 
-The first step is to create the project, which we can do using [Composer](https://getcomposer.org/):
+### Quick Installation
+
+If you have already installed PHP and Composer on your local machine, you may create a new Laravel project via [Composer](https://getcomposer.org/):
 
 ```bash
 composer create-project laravel/laravel turbo-chirper
 ```
 
-Head over to the folder that was just created and start the Artisan serve command:
+After the project has been created, start Laravel's local development server using the Laravel's Artisan CLI serve command:
 
 ```bash
 cd turbo-chirper/
+
 php artisan serve
 ```
 
-You should be able to see the welcome page for Laravel on your browser if you visit [http://localhost:8000](http://localhost:8000):
+Once you have started the Artisan development server, your application will be accessible in your web browser at [http://localhost:8000](http://localhost:8000).
 
 ![Laravel Welcome page](/images/welcome-page.png)
 
-Now, let's configure the app to use the SQLite database driver instead of the MySQL one. Open the `.env` file, delete all `DB_*` entries and replace it with the single connection one:
+For simplicity, you may use SQLite to store your application's data. To instruct Laravel to use SQLite instead of MySQL, update your new application's `.env` file and remove all of the `DB_*` environment variables except for the `DB_CONNECTION` variable, which should be set to `sqlite`:
 
 ```env
-DB_CONNECTION=sqlite # [tl! add]
-DB_CONNECTION=mysql # [tl! remove:start]
-DB_HOST=mysql
-DB_PORT=3306
-DB_DATABASE=bootcamp.turbo_laravel.com
-DB_USERNAME=sail
-DB_PASSWORD=password # [tl! remove:end]
+DB_CONNECTION=sqlite
 ```
 
-Done!
+## Installing via Docker
 
-## Laravel Sail
+If you do not have PHP installed locally, you may develop your application using [Laravel Sail](https://laravel.com/docs/sail), a light-weight command-line interface for interacting with Laravel's default Docker development environment, which is compatible with all operating systems. Before we get started, make sure to install [Docker](https://docs.docker.com/get-docker/) for your operating system. For alternative installation methods, check out Laravel's full [installation guide](https://laravel.com/docs/installation).
 
-Laravel also has a containerized local development environment called [Laravel Sail](https://laravel.com/docs/sail). Let's assume you don't have PHP or Composer installed locally. To create the project, Laravel provides a build script hosted at [https://laravel.build](https://laravel.build/turbo-chirper) which we can use:
+The easiest way to install Laravel is using Laravel's `laravel.build` service, which will download and create a fresh Laravel application for you. Launch a terminal and run the following command:
 
 ```bash
 curl -s "https://laravel.build/turbo-chirper" | bash
 ```
 
-We specify our project name as the first argument to the URI path there. This process may take some time as your container will get built locally.
+Sail installation may take several minutes while Sail's application containers are built on your local machine.
 
-By default, the installer will pre-configure Laravel Sail with a number of useful services for your local development, including a MySQL database server. You may [customize the Sail services](https://laravel.com/docs/installation#choosing-your-sail-services) if needed.
+By default, the installer will pre-configure Laravel Sail with a number of useful services for your application, including a MySQL database server. You may [customize the Sail services](https://laravel.com/docs/installation#choosing-your-sail-services) if needed.
 
-When the script is done running, you may head over to the created `turbo-chirper` folder:
+After the project has been created, you can navigate to the application directory and start Laravel Sail:
 
 ```bash
 cd turbo-chirper
+
 ./vendor/bin/sail up -d
 ```
+
+> **Note**
+> You can [create a shell alias](https://laravel.com/docs/sail#configuring-a-shell-alias) that allows you execute Sail's commands more easily.
 
 When developing applications using Sail, you may execute Artisan, NPM, and Composer commands via the Sail CLI instead of invoking them directly:
 
@@ -65,30 +66,31 @@ When developing applications using Sail, you may execute Artisan, NPM, and Compo
 ./vendor/bin/sail npm --version
 ```
 
-Remember that when running the commands from now on.
-
 Once the application's Docker containers have been started, you can access the application in your web browser at: [http://localhost](http://localhost).
 
 ![Welcome Page over Sail](/images/sail-welcome-page.png)
 
-Done!
+## Installing Laravel Breeze
 
-## Laravel Breeze
+Next, we will give your application a head-start by installing [Laravel Breeze](https://laravel.com/docs/starter-kits#laravel-breeze), a minimal, simple implementation of all of Laravel's authentication features, including login, registration, password reset, email verification, and password confirmation. Once installed, you are welcome to customize the components to suit your needs.
 
-Before we start working on our features, we'll first need to handle Login and Registration. Luckily for us, Laravel has a set of Starterkits we can use. In this bootcamp, we're going to use Breeze because of its simplicity. Let's get that installed:
+Laravel Breeze offers several options for your view layer, including Blade templates, or [Vue](https://vuejs.org/) and [React](https://reactjs.org/) with [Inertia](https://inertiajs.com/). For this tutorial, we'll be using Blade, since it plays nicely with Turbo.
+
+Open a new terminal in your `turbo-chirper` project directory and install your chosen stack with the given commands:
 
 ```bash
 composer require laravel/breeze --dev
-php artisan breeze:install
+
+php artisan breeze:install blade
 ```
 
-We're using the default Blade flavor of Breeze since it pairs nicely with Turbo. We're also using Laravel's frontend setup (for now) which relies on Vite. Let's compile our assets:
+Breeze will install and configure your front-end dependencies for you, so we just need to start the Vite development server to automatically recompile our CSS and refresh the browser when we make changes to our Blade templates:
 
 ```bash
 npm run dev
 ```
 
-Finally, open up a new terminal, make sure you're in the `turbo-chirper/` project folder and run the migrations:
+Finally, open another terminal in your `turbo-chirper` project directory and run the initial database migrations to populate the database with the default tables from Laravel and Breeze:
 
 ```bash
 php artisan migrate
@@ -108,29 +110,31 @@ Then, you should be redirected to the Dashboard page:
 
 This Dashboard page is protected by Laravel's auth middleware, so only authenticated users can access it. The registration process automatically authenticates us.
 
-## Turbo Laravel
+## Installing Turbo Laravel
 
-Let's install Turbo Laravel, 'cause this is a Turbo Bootcamp after all!
+Next, we'll install Turbo Laravel, because this is a Turbo Bootcamp after all!
 
 ```bash
 composer require tonysm/turbo-laravel
+
 php artisan turbo:install --alpine
 ```
 
-Since we're using Vite (for now), we need to install the NPM dependencies that were added to our `package.json` file and compile the assets again. If you still have the previous `npm run dev` command running, close it with `CTRL+C`, then run:
+Since we're using Vite (for now), we need to install the NPM dependencies that were added to our `package.json` file and compile the assets again. If you still have the previous `npm run dev` command running, close it with `CTRL+C` and then run:
 
 ```bash
 npm install
+
 npm run dev
 ```
 
-And that's it! Get to the Dashboard page, open the DevTools, go to the Console tab, type `Turbo` there and hit enter. You should see that the global Turbo object is there, which means Turbo was successfully installed!
+That's it! Get to the Dashboard page, open the DevTools, go to the Console tab, type `Turbo` there and hit enter. You should see that the global Turbo object is there, which means Turbo was successfully installed!
 
 ![Turbo Installed](/images/turbo-installed.png)
 
-## Importmap Laravel and TailwindCSS Laravel
+## Installing Importmap Laravel
 
-To get things more interesting, let's install an alternative frontend setup that doesn't require having Node and NPM locally. We could stick with Vite, but I found it's hot code replacement feature not that great when working with Turbo. Feel free to skip this part of the tutorial if you want to keep using Vite.
+To get things more interesting, let's install an alternative frontend setup that doesn't require having Node and NPM locally. We could stick with Vite, but I found it's "Hot Module Replacement" feature not that great when working with Turbo. Feel free to skip this part of the tutorial if you want to keep using Vite.
 
 We'll use [Importmap Laravel](https://github.com/tonysm/importmap-laravel) to handle the JS side of things:
 
@@ -150,21 +154,20 @@ Now, let's create the symlink that will map our `resources/js/` folder to `publi
 php artisan storage:link
 ```
 
-If you're using Sail, remember to prefix this command with `./vendor/bin/sail`, since the symlink needs to be created inside the container.
+> **Note**
+> If you're using Sail, remember to prefix this command with `./vendor/bin/sail`, since the symlink needs to be created inside the container.
 
-Next, since we got rid of Vite, we need to install the TailwindCSS Laravel package to handle our CSS compilation:
+## Installing TailwindCSS Laravel
+
+Next, since we replaced Vite with Importmap Laravel, we need to install the TailwindCSS Laravel package to handle our CSS compilation:
 
 ```bash
 composer require tonysm/tailwindcss-laravel
-```
 
-That's it. Let's download the TailwindCSS CLI binary and compile the assets the first time:
-
-```bash
 php artisan tailwindcss:install
 ```
 
-This should update our guest and app layouts that Breeze created to add the link tag including the TailwindCSS file using the `tailwindcss()` function provided by the package.
+This should download the TailwindCSS CLI binary, compile the assets for the first time, then update our guest and app layouts that Breeze created to add the link tag including the TailwindCSS file using the `tailwindcss()` function provided by the package.
 
 Now, if you try refreshing the app with the console open, you'll see an error:
 
@@ -182,21 +185,17 @@ Now, let's pin it again but using the 0.27 version, which I know works:
 php artisan importmap:pin axios@0.27
 ```
 
-If you refresh the page now, the error should be gone and we're now using Importmap!
+If you refresh the page now, the error should be gone and we're now using Importmap Laravel with TailwindCSS Laravel!
 
 ![Error Gone Importmap Welcome](/images/install-error-gone-importmap-welcome.png)
 
-## Stimulus Laravel
+## Installing Stimulus Laravel
 
 Our last piece is replacing Alpine for Stimulus. Let's start by installing the [Stimulus Laravel](https://github.com/tonysm/stimulus-laravel) package:
 
 ```bash
 composer require tonysm/stimulus-laravel
-```
 
-Next, let's run the install command:
-
-```bash
 php artisan stimulus:install
 ```
 
@@ -216,7 +215,7 @@ window.Alpine = Alpine;
 Alpine.start(); // [tl! remove:end]
 ```
 
-Now, we can unpin Alpine:
+Now we can unpin Alpine:
 
 ```bash
 php artisan importmap:unpin alpinejs
@@ -258,7 +257,7 @@ You should see the "Hello World!" text instead of "You're logged in!", which mea
 
 ![Stimulus Controller working](/images/install-stimulus-controller-working.png)
 
-However, our dashboard no longer works. We'll need to create a couple of replacements for the dropdown, the modal, nav, and our quick flash message. Let's get started!
+However, our dashboard no longer works as before. We'll need to create some replacements for the dropdown, the modal, nav, and our quick flash message.
 
 Let's start with the dropdown. We're going to use the [el-transition](https://github.com/mmccall10/el-transition) lib to animate our elements, so let's pin that:
 
@@ -363,7 +362,7 @@ With that, our dropdowns should be working!
 
 ![Dropdowns Working Again](/images/installation-dropdown-controller.png)
 
-Next, let's focus on the flash message. For that, we're going to add a new animation to our `tailwind.config.js` file:
+Let's focus on the flash message next. For that, we're going to add a new animation to our `tailwind.config.js` file:
 
 ```js
 const defaultTheme = require('tailwindcss/defaultTheme');
@@ -552,13 +551,14 @@ Let's also update the `update-profile-information-form.blade.php` file:
 </section>
 ```
 
-Now, let's build the TailwindCSS and then test our app:
+Now, let's build our TailwindCSS styles and then test our app:
 
 ```bash
 php artisan tailwindcss:build
 ```
 
-You may prefer to keep a watcher running, which you can do by using the `php artisan tailwindcss:watch` command instead of the build one.
+> **Note**
+> You may prefer to keep a watcher running, which you can do by using the `php artisan tailwindcss:watch` command instead of the build one.
 
 Now, the flash messages should appear, then fade away and if you inspect the DOM after they disappear, they should be gone!
 
@@ -738,7 +738,7 @@ $maxWidth = [
 </div>
 ```
 
-The modal will handle a custom event called `open-modal` that may be triggered from anywhere in the page. It expects that event to have the modal name in the event detail. Now, we need a new Stimulus controller that will dispatch that event, since the modal trigger will be outside the modal:
+The modal has an `open()` method that's currently not used anywhere in the component. That's because the trigger to open the modal will leave outside of it in the DOM, so we'll need a new Stimulus controller for that and we'll use the [Stimulus Outlets API](https://stimulus.hotwired.dev/reference/outlets) so our trigger controller will invoke the open method from the modal controller:
 
 ```bash
 php artisan stimulus:make modal_trigger_controller
@@ -939,7 +939,7 @@ Now, the only thing remaining that was using Alpine is the navigation. We can us
 </nav>
 ```
 
-Open the DevTools and view the page in responsive mode and test clicking on the hamburber menu, it should open:
+Open the DevTools and view the page in responsive mode and try clicking on the hamburger menu:
 
 ![Responsive Nav](/images/installation-nav.png)
 
