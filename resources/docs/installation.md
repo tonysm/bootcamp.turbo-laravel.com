@@ -571,3 +571,192 @@ php artisan stimulus:make modal_controller
 ```
 
 Then, replace its contents with the following:
+
+```js
+import { Controller } from "@hotwired/stimulus"
+import { enter, leave } from "el-transition";
+
+// Connects to data-controller="modal"
+export default class extends Controller {
+    static targets = ['overlay', 'content'];
+
+    static values = {
+        open: Boolean,
+        focusable: Boolean,
+    }
+
+    static classes = ['overlay']
+
+    open() {
+        this.openValue = true;
+    }
+
+    close () {
+        this.openValue = false;
+    }
+
+    hijackFocus(event) {
+        if (event.shiftKey) {
+            this.focusPrevious()
+        } else {
+            this.focusNext()
+        }
+    }
+
+    focusNext() {
+        this.nextFocusable.focus()
+    }
+
+    focusPrevious() {
+        this.prevFocusable.focus()
+    }
+
+    closeNow() {
+        this.overlayTarget.classList.add('hidden')
+        this.contentTarget.classList.add('hidden')
+        document.body.classList.remove(this.overlayClass)
+        this.openValue = false
+    }
+
+    // private
+
+    openValueChanged() {
+        if (this.openValue) {
+            Promise.all([
+                enter(this.element),
+                enter(this.overlayTarget),
+                enter(this.contentTarget),
+            ]).then(() => {
+                if (this.focusableValue) {
+                    this.firstFocusable.focus()
+                    document.body.classList.add(this.overlayClass)
+                }
+            })
+        } else {
+            leave(this.element)
+            leave(this.contentTarget)
+            leave(this.overlayTarget)
+
+            if (this.focusableValue) document.body.classList.remove(this.overlayClass)
+        }
+    }
+
+    get focusables() {
+        let selector = 'a, button, input:not([type=\'hidden\']), textarea, select, details, [tabindex]:not([tabindex=\'-1\'])'
+
+        return [...this.element.querySelectorAll(selector)]
+            // All non-disabled elements...
+            .filter(el => ! el.hasAttribute('disabled'))
+    }
+
+    get firstFocusable() {
+        return this.focusables[0]
+    }
+
+    get lastFocusable() {
+        return this.focusables.slice(-1)[0]
+    }
+
+    get nextFocusable() {
+        return this.focusables[this.nextFocusableIndex] || this.firstFocusable
+    }
+
+    get prevFocusable() {
+        return this.focusables[this.prevFocusableIndex] || this.lastFocusable
+    }
+
+    get nextFocusableIndex() {
+        return this.focusables.indexOf(document.activeElement) + 1 % (this.focusables.length + 1)
+    }
+
+    get prevFocusableIndex() {
+        return Math.max(0, this.focusables.indexOf(document.activeElement) -1)
+    }
+}
+```
+
+Next, replace the `modal.blade.php` component with this version:
+
+```blade
+@props([
+    'id',
+    'show' => false,
+    'maxWidth' => '2xl'
+])
+
+@php
+$maxWidth = [
+    'sm' => 'sm:max-w-sm',
+    'md' => 'sm:max-w-md',
+    'lg' => 'sm:max-w-lg',
+    'xl' => 'sm:max-w-xl',
+    '2xl' => 'sm:max-w-2xl',
+][$maxWidth];
+@endphp
+
+<div
+    id="{{ $id }}"
+    data-controller="modal"
+    data-modal-overlay-class="overflow-y-hidden"
+    data-modal-open-value="{{ $show ? 'true' : 'false' }}"
+    data-modal-focusable-value="{{ $attributes->has('focusable') ? 'true' : 'false' }}"
+    data-action="
+        close->modal#close
+        keydown.esc@window->modal#close
+        keydown.shift+tab->modal#hijackFocus:prevent
+        keydown.tab->modal#hijackFocus:prevent
+        turbo:before-cache@window->modal#closeNow
+    "
+    class="{{ $show ? '' : 'hidden' }} fixed inset-0 overflow-y-auto px-4 py-6 sm:px-0 z-50"
+>
+    <div
+        data-action="click->modal#close"
+        data-modal-target="overlay"
+        class="{{ $show ? '' : 'hidden' }} fixed inset-0 transform transition-all"
+        data-transition-enter="ease-out duration-300"
+        data-transition-enter-start="opacity-0"
+        data-transition-enter-end="opacity-100"
+        data-transition-leave="ease-in duration-200"
+        data-transition-leave-start="opacity-100"
+        data-transition-leave-end="opacity-0"
+    >
+        <div class="absolute inset-0 bg-gray-500 dark:bg-gray-900 opacity-75"></div>
+    </div>
+
+    <div
+        class="{{ $show ? '' : 'hidden' }} mb-6 bg-white rounded-lg overflow-hidden shadow-xl transform transition-all sm:w-full {{ $maxWidth }} sm:mx-auto"
+        data-modal-target="content"
+        data-transition-enter="ease-out duration-300"
+        data-transition-enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+        data-transition-enter-end="opacity-100 translate-y-0 sm:scale-100"
+        data-transition-leave="ease-in duration-200"
+        data-transition-leave-start="opacity-100 translate-y-0 sm:scale-100"
+        data-transition-leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+    >
+        {{ $slot }}
+    </div>
+</div>
+```
+
+The modal has an `open()` method that's currently not used anywhere in the component. That's because the trigger to open the modal will leave outside of it in the DOM, so we'll need a new Stimulus controller for that and we'll use the [Stimulus Outlets API](https://stimulus.hotwired.dev/reference/outlets) so our trigger controller will invoke the open method from the modal controller:
+
+```bash
+php artisan stimulus:make modal_trigger_controller
+```
+
+Update it with the following contents:
+
+```js
+import { Controller } from "@hotwired/stimulus"
+
+// Connects to data-controller="modal-trigger"
+export default class extends Controller {
+    static outlets = ['modal'];
+
+    open() {
+        this.modalOutlet.open();
+    }
+}
+```
+
+Now, let's update the `delete-user-form.blade.php` file to use this controller:
