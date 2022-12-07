@@ -399,3 +399,175 @@ module.exports = {
 ```
 
 Now, let's generate a new flash Stimulus controller:
+
+```bash
+php artisan stimulus:make flash_controller
+```
+
+Next, replace it with the following contents:
+
+```js
+import { Controller } from "@hotwired/stimulus"
+
+// Connects to data-controller="flash"
+export default class extends Controller {
+    remove() { // [tl! add:start]
+        this.element.remove()
+    } // [tl! add:end]
+}
+```
+
+Then, let's update the `update-password-form.blade.php` Blade view to use both the controller and the new animation. The trick is that we're going to listen to the [animationend CSS event](https://developer.mozilla.org/en-US/docs/Web/API/Element/animationend_event) and once that's done, we're going to remove the element from the DOM. We're also gonna make use of Turbo's [`data-turbo-cache="false"`](https://turbo.hotwired.dev/reference/attributes#data-attributes) to indicate that this element shouldn't be stored in the page cache when we leave the page:
+
+```blade
+<section>
+    <!-- [tl! collapse:start] -->
+    <header>
+        <h2 class="text-lg font-medium text-gray-900">
+            {{ __('Update Password') }}
+        </h2>
+
+        <p class="mt-1 text-sm text-gray-600">
+            {{ __('Ensure your account is using a long, random password to stay secure.') }}
+        </p>
+    </header>
+    <!-- [tl! collapse:end] -->
+    <form method="post" action="{{ route('password.update') }}" class="mt-6 space-y-6">
+        <!-- [tl! collapse:start] -->
+        @csrf
+        @method('put')
+
+        <div>
+            <x-input-label for="update_current_password" :value="__('Current Password')" />
+            <x-text-input id="update_current_password" name="current_password" type="password" class="mt-1 block w-full" autocomplete="current-password" />
+            <x-input-error :messages="$errors->updatePassword->get('current_password')" class="mt-2" />
+        </div>
+
+        <div>
+            <x-input-label for="update_password" :value="__('New Password')" />
+            <x-text-input id="update_password" name="password" type="password" class="mt-1 block w-full" autocomplete="new-password" />
+            <x-input-error :messages="$errors->updatePassword->get('password')" class="mt-2" />
+        </div>
+
+        <div>
+            <x-input-label for="update_password_confirmation" :value="__('Confirm Password')" />
+            <x-text-input id="update_password_confirmation" name="password_confirmation" type="password" class="mt-1 block w-full" autocomplete="new-password" />
+            <x-input-error :messages="$errors->updatePassword->get('password_confirmation')" class="mt-2" />
+        </div>
+        <!-- [tl! collapse:end] -->
+        <div class="flex items-center gap-4">
+            <x-primary-button>{{ __('Save') }}</x-primary-button>
+
+            @if (session('status') === 'password-updated')
+                <p
+                    x-data="{ show: true }"
+                    x-show="show"
+                    x-transition
+                    x-init="setTimeout(() => show = false, 2000)"
+                    class="text-sm text-gray-600 dark:text-gray-400"
+                    data-turbo-cache="false"
+                    data-controller="flash"
+                    data-action="animationend->flash#remove"
+                    class="text-sm text-gray-600 transition animate-appear-then-fade-out"
+                >{{ __('Saved.') }}</p> <!-- [tl! remove:-9,5 add:-4,4] -->
+            @endif
+        </div>
+    </form>
+</section>
+```
+
+Let's also update the `update-profile-information-form.blade.php` file:
+
+```blade
+<section>
+    <!-- [tl! collapse:start] -->
+    <header>
+        <h2 class="text-lg font-medium text-gray-900">
+            {{ __('Profile Information') }}
+        </h2>
+
+        <p class="mt-1 text-sm text-gray-600">
+            {{ __("Update your account's profile information and email address.") }}
+        </p>
+    </header>
+
+    <form id="send-verification" method="post" action="{{ route('verification.send') }}">
+        @csrf
+    </form>
+    <!-- [tl! collapse:end] -->
+    <form method="post" action="{{ route('profile.update') }}" class="mt-6 space-y-6">
+        <!-- [tl! collapse:start] -->
+        @csrf
+        @method('patch')
+
+        <div>
+            <x-input-label for="name" :value="__('Name')" />
+            <x-text-input id="name" name="name" type="text" class="mt-1 block w-full" :value="old('name', $user->name)" required autofocus autocomplete="name" />
+            <x-input-error class="mt-2" :messages="$errors->get('name')" />
+        </div>
+
+        <div>
+            <x-input-label for="email" :value="__('Email')" />
+            <x-text-input id="email" name="email" type="email" class="mt-1 block w-full" :value="old('email', $user->email)" required autocomplete="email" />
+            <x-input-error class="mt-2" :messages="$errors->get('email')" />
+
+            @if ($user instanceof \Illuminate\Contracts\Auth\MustVerifyEmail && ! $user->hasVerifiedEmail())
+                <div>
+                    <p class="text-sm mt-2 text-gray-800">
+                        {{ __('Your email address is unverified.') }}
+
+                        <button form="send-verification" class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                            {{ __('Click here to re-send the verification email.') }}
+                        </button>
+                    </p>
+
+                    @if (session('status') === 'verification-link-sent')
+                        <p class="mt-2 font-medium text-sm text-green-600">
+                            {{ __('A new verification link has been sent to your email address.') }}
+                        </p>
+                    @endif
+                </div>
+            @endif
+        </div>
+        <!-- [tl! collapse:end] -->
+        <div class="flex items-center gap-4">
+            <x-primary-button>{{ __('Save') }}</x-primary-button>
+
+            @if (session('status') === 'profile-updated')
+                <p
+                    x-data="{ show: true }"
+                    x-show="show"
+                    x-transition
+                    x-init="setTimeout(() => show = false, 2000)"
+                    class="text-sm text-gray-600 dark:text-gray-400"
+                    data-turbo-cache="false"
+                    data-controller="flash"
+                    data-action="animationend->flash#remove"
+                    class="text-sm text-gray-600 animate-appear-then-fade-out"
+                >{{ __('Saved.') }}</p> <!-- [tl! remove:-9,5 add:-4,4] -->
+            @endif
+        </div>
+    </form>
+</section>
+```
+
+Now, let's build our TailwindCSS styles and then test our app:
+
+```bash
+php artisan tailwindcss:build
+```
+
+> **Note**
+> You may prefer to keep a watcher running, which you can do by using the `php artisan tailwindcss:watch` command instead of the build one.
+
+Now, the flash messages should appear, then fade away and if you inspect the DOM after they disappear, they should be gone!
+
+![Flash Messages](/images/installation-flash-message.png)
+
+Next, let's fix the modals. Same deal, let's generate the controller:
+
+```bash
+php artisan stimulus:make modal_controller
+```
+
+Then, replace its contents with the following:
