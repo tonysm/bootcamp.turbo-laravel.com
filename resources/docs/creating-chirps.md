@@ -873,14 +873,6 @@ Then, let's change our `layouts.app` file to include a `layouts.notifications` p
 
 Next, let's create the `layouts.notifications` wrapper partial:
 
-```blade
-<div id="notifications" class="fixed top-10 left-0 right-0 flex flex-col items-center justify-center z-10 opacity-80">
-    @if (session()->has('status'))
-        @include('layouts.notification', ['message' => session('status')])
-    @endif
-</div>
-```
-
 So, each notification will render with the `layouts.notification` (singular) partial and will be added to the wrapper partial. Let's add the indivitual notification partial:
 
 ```blade
