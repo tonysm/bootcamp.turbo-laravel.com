@@ -503,13 +503,4 @@ class JsBridge(private var delegator: PopupMenuDelegator) {
 
 Now, we should have the native Toast messages!
 
-![Flash Messages as Toast](/images/native/flash-messages-toast.png)
-
-What is cool about this is that we have full control over the text message shown in the notification from our web app! Let's change the message to use an emoji, for instance:
-
-![Flash Messages Deleted With Emoji on Native](/images/native/flash-message-changed-emoji-native.png)
-![Flash Messages Deleted With Emoji on Web](/images/native/flash-message-changed-emoji-web.png)
-
-That's it!
-
 [Continue to the conclusion...](/conclusion)
