@@ -781,3 +781,5 @@ Although this is using Macros, we're still using the Turbo Stream actions that s
 With these changes, our application behaves so much better than before! Try it out yourself!
 
 ![Inline Editing Forms](/images/hotwiring-chirps-inline-forms.png)
+
+[Continue to setting up the native app...](/native-setup)
