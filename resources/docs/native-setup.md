@@ -43,7 +43,7 @@ Next, you're going to need to create a [Virtual Device](https://developer.androi
 
 ![Choose Device](/images/native/setup-choose-device.png)
 
-For the System image, I'm choose API level 28, which is Android Pie.
+For the System image, I'm choose API level 30, which is Android R.
 
 ![System Image](/images/native/setup-system-image.png)
 
