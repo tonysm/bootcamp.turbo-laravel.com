@@ -1,5 +1,9 @@
 # Creating Chirps
 
+[TOC]
+
+## Introduction
+
 Let's allow users to post short messages called _Chirps_.
 
 ## Models, migrations, and controllers

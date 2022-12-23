@@ -1,5 +1,9 @@
 # Installation
 
+[TOC]
+
+## Introduction
+
 Our first step is to create the web app and setup our local environment.
 
 ## Installing Laravel
@@ -32,7 +36,7 @@ For simplicity, you may use SQLite to store your application's data. To instruct
 DB_CONNECTION=sqlite
 ```
 
-## Installing via Docker
+### Installing via Docker
 
 If you do not have PHP installed locally, you may develop your application using [Laravel Sail](https://laravel.com/docs/sail), a light-weight command-line interface for interacting with Laravel's default Docker development environment, which is compatible with all operating systems. Before we get started, make sure to install [Docker](https://docs.docker.com/get-docker/) for your operating system. For alternative installation methods, check out Laravel's full [installation guide](https://laravel.com/docs/installation).
 
@@ -54,7 +58,7 @@ cd turbo-chirper
 ./vendor/bin/sail up -d
 ```
 
-> **Note**
+> **note**
 > You can [create a shell alias](https://laravel.com/docs/sail#configuring-a-shell-alias) that allows you execute Sail's commands more easily.
 
 When developing applications using Sail, you may execute Artisan, NPM, and Composer commands via the Sail CLI instead of invoking them directly:
@@ -154,7 +158,7 @@ Now, let's create the symlink that will map our `resources/js/` folder to `publi
 php artisan storage:link
 ```
 
-> **Note**
+> **note**
 > If you're using Sail, remember to prefix this command with `./vendor/bin/sail`, since the symlink needs to be created inside the container.
 
 ## Installing TailwindCSS Laravel
@@ -557,7 +561,7 @@ Now, let's build our TailwindCSS styles and then test our app:
 php artisan tailwindcss:build
 ```
 
-> **Note**
+> **note**
 > You may prefer to keep a watcher running, which you can do by using the `php artisan tailwindcss:watch` command instead of the build one.
 
 Now, the flash messages should appear, then fade away and if you inspect the DOM after they disappear, they should be gone!

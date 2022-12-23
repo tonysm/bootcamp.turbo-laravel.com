@@ -1,5 +1,9 @@
 # Deleting Chirps
 
+[TOC]
+
+## Introduction
+
 Sometimes no amount of editing can fix a message, so let's give our users the ability to delete their Chirps.
 
 Hopefully you're starting to get the hang of things now. We think you'll be impressed how quickly we can add this feature.
@@ -345,7 +349,9 @@ Finally, we can add a delete button to the dropdown menu we created earlier in o
         <div class="flex justify-between items-center">
             <div>
                 <span class="text-gray-800">{{ $chirp->user->name }}</span>
-                <x-time-ago :date="$chirp->created_at" />
+                <small class="ml-2 text-sm text-gray-600">
+                    <x-relative-time :date="$chirp->created_at" />
+                </small>
                 @unless ($chirp->created_at->eq($chirp->updated_at))
                 <small class="text-sm text-gray-600"> &middot; edited</small>
                 @endunless

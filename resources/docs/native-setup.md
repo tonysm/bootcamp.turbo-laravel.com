@@ -1,12 +1,14 @@
 # Turbo Native Android Setup
 
+[TOC]
+
+## Introduction
+
 Hotwire offers mobile native adapters to help building high-fidelity hybrid apps with native navigation and a single shared web view.
 
 You'll need a little bit of mobile development knowledge, specifically for Android and Kotlin. Not that much, though, because to be honest I'm no mobile dev expert myself.
 
 This guide isn't about "the best way to build Turbo Native apps". The idea is just to show you what's possible and how it integrates with Turbo.js and Turbo Laravel.
-
-## Overview
 
 We're gonna focus on the [Turbo Native for Android](https://github.com/hotwired/turbo-android) lib. I feel like [Turbo Native for iOS](https://github.com/hotwired/turbo-ios) has a lot more attention, so I want to focus on Android for a bit. It's also the platform I am more familiar with, to be honest.
 

@@ -3,6 +3,7 @@
 @import "tailwindcss/utilities";
 @import "./_nav";
 @import "./_code";
+@import "./_markdown";
 
 /* Heading permalinks */
 h2:hover .heading-permalink,

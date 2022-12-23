@@ -1,5 +1,9 @@
 # Hotwiring everything
 
+[TOC]
+
+## Introduction
+
 So far, our application is quite basic. Out of Hotwire, we're only using Turbo Drive, which is enabled by default when we install and start Turbo.
 
 ## Using Turbo Frames to render the create Chirps form inline

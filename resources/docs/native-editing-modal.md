@@ -1,5 +1,9 @@
 # Editing in a Modal
 
+[TOC]
+
+## Introduction
+
 Right now our editing flow is not very mobile-friendly. Instead of showing the edit form inline in the list, we could show it as a native modal screen instead. But before we introduce the new native screen, let's first ensure our web dropdown appears as a real native bottom sheet list of options. That will serve as an example of how we can bridge the web and mobile native Worlds with a little bit of JavaScript. This approach was based on how the Hey app works (at least on the pieces I could spot from inspecting the page source).
 
 ## Dropdowns in a BottomSheet modal

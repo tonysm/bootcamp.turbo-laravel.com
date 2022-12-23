@@ -1,5 +1,9 @@
 # Native Floating Action Button to Create Chirps
 
+[TOC]
+
+## Introduction
+
 Rendering the create chirps form inline right on the homepage isn't the best UX for mobile. Instead, it would be better to display the form as a native modal screen. Let's implement that, but first, let's hide the entire create chirps form on Turbo Native.
 
 ## Hiding the Elements for Turbo Native only

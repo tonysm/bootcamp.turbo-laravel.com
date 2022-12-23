@@ -48,8 +48,9 @@ return [
         League\CommonMark\Extension\CommonMark\CommonMarkCoreExtension::class,
         League\CommonMark\Extension\GithubFlavoredMarkdownExtension::class,
         League\CommonMark\Extension\HeadingPermalink\HeadingPermalinkExtension::class,
-        // League\CommonMark\Extension\TableOfContents\TableOfContentsExtension::class,
+        League\CommonMark\Extension\TableOfContents\TableOfContentsExtension::class,
         Torchlight\Commonmark\V2\TorchlightExtension::class,
+        App\Markdown\CalloutExtension::class,
     ],
 
     /*
@@ -156,4 +157,20 @@ return [
         'unique'     => 'document',
     ],
 
+    'table_of_contents' => [
+        'html_class' => 'table-of-contents',
+        'position' => 'placeholder',
+        'style' => 'bullet',
+        'min_heading_level' => 2,
+        'max_heading_level' => 6,
+        'normalize' => 'relative',
+        'placeholder' => '[TOC]',
+    ],
+
+    'heading_permalink' => [
+        'html_class' => 'heading-permalink',
+        'insert' => 'after',
+        'symbol' => '¶',
+        'title' => "Permalink",
+    ],
 ];

@@ -1,5 +1,9 @@
 # Deleting Chirps Confirmation
 
+[TOC]
+
+## Introduction
+
 Right now we're not showing a confirmation when the user presses the delete button. Let's fix that.
 
 ## JS Confirm

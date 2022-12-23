@@ -1,5 +1,9 @@
 # Listing Chirps
 
+[TOC]
+
+## Introduction
+
 In the previous step we added the ability to create Chirps, now we're ready to display them!
 
 ## Retrieving the Chirps
