@@ -14,3 +14,27 @@ pre code.torchlight .line-number,
 pre code.torchlight .summary-caret {
     @apply mr-1;
 }
+
+.code-container {
+    @apply my-5 rounded-md overflow-hidden;
+}
+
+.code-container .code-container-filename {
+    @apply flex items-center px-4 pb-2 pt-3 text-sm font-mono border-b border-gray-500 text-gray-400;
+    background-color: #292D3E;
+    background-size: 1.25rem;
+    background-position: 12px center;
+    background-repeat: no-repeat;
+}
+
+.code-container .code-container-filename:before {
+    @apply block w-4 h-4 mr-1 bg-gray-500;
+    content: '';
+    mask-image: url('/images/unfenced/document.svg');
+    mask-repeat: no-repeat;
+    mask-size: 100%
+}
+
+.code-container pre {
+    @apply m-0 rounded-none;
+}

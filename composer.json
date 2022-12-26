@@ -4,6 +4,12 @@
     "description": "The Laravel Framework.",
     "keywords": ["framework", "laravel"],
     "license": "MIT",
+    "repositories": {
+        "laravel-unfenced": {
+            "type": "vcs",
+            "url": "https://github.com/laravel-labs/unfenced"
+        }
+    },
     "require": {
         "php": "^8.0.2",
         "graham-campbell/markdown": "^14.0",
@@ -16,7 +22,8 @@
         "tonysm/tailwindcss-laravel": "^0.7.0",
         "tonysm/turbo-laravel": "^1.6",
         "torchlight/torchlight-commonmark": "^0.5.5",
-        "torchlight/torchlight-laravel": "^0.5.11"
+        "torchlight/torchlight-laravel": "^0.5.11",
+        "laravel/unfenced": "dev-main"
     },
     "require-dev": {
         "fakerphp/faker": "^1.9.1",

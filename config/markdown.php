@@ -51,6 +51,7 @@ return [
         League\CommonMark\Extension\TableOfContents\TableOfContentsExtension::class,
         Torchlight\Commonmark\V2\TorchlightExtension::class,
         App\Markdown\CalloutExtension::class,
+        Laravel\Unfenced\UnfencedExtension::class,
     ],
 
     /*
