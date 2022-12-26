@@ -11,8 +11,8 @@
         <x-importmap-tags />
     </head>
     <body class="antialiased bg-white min-h-screen">
-        <div class="relative min-h-screen">
-            <div class="hidden md:block fixed top-0 right-0 px-6 py-4">
+        <div class="relative h-full">
+            <div class="hidden lg:block fixed top-0 right-0 px-6 py-4">
                 <div class="flex items-center space-x-4">
                     <a href="https://turbo-laravel.com" class="text-sm text-gray-900 dark:text-gray-500 underline">
                         Docs
@@ -20,8 +20,8 @@
                 </div>
             </div>
 
-            <div class="w-full md:mx-auto md:flex">
-                <nav class="md:hidden p-4 border-b" data-controller="dropdown" data-dropdown-css-class="hidden">
+            <div class="w-full lg:mx-auto lg:flex">
+                <nav class="lg:hidden p-4 border-b" data-controller="dropdown" data-dropdown-css-class="hidden">
                     <div class="relative">
                         <ul class="flex items-center justify-between">
                             <li><span class="text-lg lg:text-xl font-semibold">Turbo Laravel Bootcamp</span></li>
@@ -49,7 +49,8 @@
                         </div>
                     </div>
                 </nav>
-                <aside class="hidden min-h-screen bg-gray-100 md:block w-1/4 py-4 px-2 lg:px-8 lg:py-8 shrink-0">
+
+                <aside class="hidden min-h-screen bg-gray-100 lg:block max-w-xs w-full py-4 px-2 lg:px-8 lg:py-8 shrink-0">
                     <nav class="nav fixed" data-controller="nav">
                         <div class="no-prose mb-8">
                             <p class="text-xl lg:text-3xl font-bold">Turbo Laravel<br> Bootcamp</p>
@@ -58,7 +59,7 @@
                     </nav>
                 </aside>
 
-                <main id="main-content" class="flex-1 py-4 px-2 lg:px-24 lg:py-24 bg-white min-h-screen prose prose-pre:p-0 prose-pre:mr-4 w-full max-w-4xl">
+                <main id="main-content" class="flex-1 py-4 px-2 md:px-20 md:py-20 bg-white min-h-screen prose prose-pre:p-0 prose-pre:mr-4 w-full max-w-3xl xl:max-w-5xl">
                     <div class="mb-6 p-4 rounded bg-blue-50 border border-blue-100 shadow-md">
                         <strong>Hey, there! 👋🏻</strong> This Bootcamp is still under construction. I'm sharing it publicly because I think it's already in a good enough shape, but here be dragons. If you find anything not working, please let me know and I'll fix it. I feel like the web part is complete, but the Turbo Native side wasn't reviewed yet. Enjoy!
                     </div>
