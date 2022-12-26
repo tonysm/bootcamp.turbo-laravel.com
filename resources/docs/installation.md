@@ -787,7 +787,7 @@ Now, let's update the `delete-user-form.blade.php` file to use this controller:
     >{{ __('Delete Account') }}</x-danger-button> <!-- [tl! remove:-5,2 add:-4,4] -->
 
     <x-modal name="confirm-user-deletion" :show="$errors->userDeletion->isNotEmpty()" focusable>
-    <x-modal id="confirm-user-deletion" :show="$errors->userDeletion->isNotEmpty()" focusable> <!-- [tl! remove:-1 add]>
+    <x-modal id="confirm-user-deletion" :show="$errors->userDeletion->isNotEmpty()" focusable> <!-- [tl! remove:-1 add] -->
         <form method="post" action="{{ route('profile.destroy') }}" class="p-6">
             <!-- [tl! collapse:start] -->
             @csrf
