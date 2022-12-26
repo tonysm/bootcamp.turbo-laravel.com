@@ -10,7 +10,7 @@ Let's add a feature that's missing from other popular bird-themed microblogging 
 
 First we will update our routes file to enable the `chirps.edit` and `chirps.update` routes for our resource controller:
 
-```php
+```php filename="routes/web.php"
 <?php
 // [tl! collapse:start]
 use App\Http\Controllers\ChirpController;
@@ -66,7 +66,7 @@ Next, let's update our `chirps._chirp` Blade partial to have an edit form for ex
 
 We're going to use the `<x-dropdown>` component that comes with Breeze, which we'll only display to the Chirp author. We'll also display an indication if a Chirp has been edited by comparing the Chirp's `created_at` date with its `updated_at` date:
 
-```blade
+```blade filename="resources/views/chirps/_chirp.blade.php"
 <div class="p-6 flex space-x-2">
     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-600 -scale-x-100" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
         <path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
@@ -110,7 +110,7 @@ We're going to use the `<x-dropdown>` component that comes with Breeze, which we
 
 We can now update the `edit` action on our `ChirpController` class to show the form to edit Chirps. Even though we're only displaying the edit button to the author of the Chirp, we also need to authorize the request to make sure it's actually the author that is updating it:
 
-```php
+```php filename="app/Http/Controllers/ChirpController.php"
 <?php
 // [tl! collapse:start]
 namespace App\Http\Controllers;
@@ -217,7 +217,7 @@ class ChirpController extends Controller
 
 Now, we need to create our `chirps.edit` view:
 
-```blade
+```blade filename="resources/views/chirps/edit.blade.php"
 <x-app-layout :title="__('Edit Chirp')">
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
@@ -233,7 +233,7 @@ Now, we need to create our `chirps.edit` view:
 
 Since this view would use the same form as the create one, we may extract the form to its own partial at `chirps._form` and make some changes to it so it works for both creating and editing Chirps:
 
-```blade
+```blade filename="resources/views/chirps/_form.blade.php"
 <form action="{{ ($chirp ?? false) ? route('chirps.update', $chirp) : route('chirps.store') }}" method="POST">
     @if ($chirp ?? false)
         @method('PUT')
@@ -260,7 +260,7 @@ Since this view would use the same form as the create one, we may extract the fo
 
 Now, we can update the `chirps.create` view to also use the same form:
 
-```blade
+```blade filename="resources/views/chirps/create.blade.php"
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
@@ -296,7 +296,7 @@ php artisan make:policy ChirpPolicy --model=Chirp
 
 This will create a policy class at `app/Policies/ChirpPolicy.php` which we can update to specify that only the author is authorized to update a Chirp:
 
-```php
+```php filename="app/Policies/ChirpPolicy.php"
 <?php
 // [tl! collapse:start]
 namespace App\Policies;
@@ -404,7 +404,7 @@ You should be able to use the dropdown, click on the Edit link and view the edit
 
 We can now change the `update` action on our `ChirpController` class to validate the request and update the database. Again, we also need to authorize the request here to make sure it's actually the author that is updating it:
 
-```php
+```php filename="app/Http/Controllers/ChirpController.php"
 <?php
 // [tl! collapse:start]
 namespace App\Http\Controllers;

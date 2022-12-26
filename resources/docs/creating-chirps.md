@@ -45,7 +45,7 @@ We are also going to place these routes behind two [middlewares](https://laravel
 * The `auth` middleware ensures that only logged-in users can access the route.
 * The `verified` middleware will be used if you decide to enable [email verification](https://laravel.com/docs/verification).
 
-```php
+```php filename="routes/web.php"
 <?php
 
 use App\Http\Controllers\ChirpController; // [tl! add]
@@ -90,7 +90,7 @@ You may view all of the routes for your application by running the `php artisan 
 
 Let's test our route and controller by returning a test message from the `index` method of our new `ChirpController` class:
 
-```php
+```php filename="app/Http/Controllers/ChirpController.php"
 <?php
 // [tl! collapse:start]
 namespace App\Http\Controllers;
@@ -186,7 +186,7 @@ If you are still logged in from earlier, you should see your message when naviga
 
 Let's update our `index` action in the `ChirpController` to render the view that will display the listing of Chirps and a link to create a Chirp. We'll also update the `create` action to render the view that will display the form to create Chirps:
 
-```php
+```php filename="app/Http/Controllers/ChirpController.php"
 <?php
 
 namespace App\Http\Controllers;
@@ -331,7 +331,7 @@ Then, let's create our `chirps.create` page view with the Chirps form:
 
 Since we're passing a `title` prop to the layout component, we need to update the `AppLayout.php` PHP class:
 
-```php
+```php filename="app/Components/AppLayout.php"
 <?php
 
 namespace App\View\Components;
@@ -358,7 +358,7 @@ class AppLayout extends Component
 
 Now, update the `layouts/app.blade.php` file to make use of the new title prop:
 
-```blade
+```blade filename="resources/views/layouts/app.blade.php"
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
     <head>
@@ -554,7 +554,7 @@ Finally, we can return a redirect response to our `chirps.index` route.
 
 You may have noticed in the previous step that we called a `chirps` method on the `$request->user()` object. We need to create this method on our `User` model to define a ["has many"](https://laravel.com/docs/eloquent-relationships#one-to-many) relationship:
 
-```php
+```php filename="app/Models/User.php"
 <?php
 // [tl! collapse:start]
 namespace App\Models;
@@ -734,7 +734,7 @@ Since we're redirecting the user to another page and redirects happens in the br
 
 Let's update our `store` action in the `ChirpController` to also return a flash message named `status` in the redirect:
 
-```php
+```php filename="app/Http/Controllers/ChirpController.php"
 <?php
 // [tl! collapse:start]
 namespace App\Http\Controllers;
@@ -835,7 +835,7 @@ class ChirpController extends Controller
 
 Then, let's change our `layouts.app` file to include a `layouts.notifications` partial:
 
-```blade
+```blade filename="resources/views/layouts/app.blade.php"
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
     <head>
@@ -877,7 +877,7 @@ Then, let's change our `layouts.app` file to include a `layouts.notifications` p
 
 Next, let's create the `layouts.notifications` wrapper partial:
 
-```blade
+```blade filename="resources/views/layouts/notifications.blade.php"
 <div id="notifications" class="fixed top-10 left-0 right-0 flex flex-col items-center justify-center z-10 opacity-80">
     @if (session()->has('status'))
         @include('layouts.notification', ['message' => session('status')])
@@ -887,7 +887,7 @@ Next, let's create the `layouts.notifications` wrapper partial:
 
 So, each notification will render with the `layouts.notification` (singular) partial and will be added to the wrapper partial. Let's add the indivitual notification partial:
 
-```blade
+```blade filename="resources/views/layouts/notification.blade.php"
 <div class="py-1 px-4 leading-7 text-center text-white rounded-full bg-gray-900 transition-all animate-appear-then-fade-out" data-controller="flash" data-action="animationend->flash#remove">
     {{ $message }}
 </div>

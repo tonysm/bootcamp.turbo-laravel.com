@@ -12,7 +12,7 @@ Hopefully you're starting to get the hang of things now. We think you'll be impr
 
 Let's update our `routes/web.php` file to add the new `destroy` action in our resource definition:
 
-```php
+```php filename="routes/web.php"
 <?php
 // [tl! collapse:start]
 use App\Http\Controllers\ChirpController;
@@ -54,7 +54,7 @@ require __DIR__.'/auth.php'; // [tl! collapse:end]
 
 However, at this point we can get rid of the `->only()` method call. By default, Laravel will register all those resource routes when we're using the `resource()` route method. The `->only()` method is useful when you want to limite to only a few of those routes:
 
-```php
+```php filename="routes/web.php"
 <?php
 // [tl! collapse:start]
 use App\Http\Controllers\ChirpController;
@@ -108,7 +108,7 @@ DELETE    | `/chirps/{chirp}`      | destroy      | `chirps.destroy`
 
 Now we can update the `destroy` action on our `ChirpController` class to perform the deletion and return to the Chirp index:
 
-```php
+```php filename="app/Http/Controllers/ChirpController.php"
 <?php
 // [tl! collapse:start]
 namespace App\Http\Controllers;

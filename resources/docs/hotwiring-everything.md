@@ -10,7 +10,7 @@ So far, our application is quite basic. Out of Hotwire, we're only using Turbo D
 
 Our application works, but we could improve it. Instead of sending users to a dedicated chirp creation form page, let's display the form inline right on the `chirps.index` page. To do that, we're going to use [lazy-loading Turbo Frames](https://turbo.hotwired.dev/reference/frames):
 
-```blade filename=resources/views/chirps/index.blade.php
+```blade filename="resources/views/chirps/index.blade.php"
 <x-app-layout><!-- [tl! collapse:start] -->
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
@@ -617,17 +617,48 @@ class ChirpController extends Controller
 
 So far we've beeing using the default action methods provided by the Turbo Laravel package. The `turbo_stream()` function returns either an instance of a `PendingTurboStreamResponse` or a `MultiplePendingTurboStreamResponse`. Let's add a `flash` macro to the first one to ease generating flash messages Turbo Streams:
 
-```php
-PendingTurboStreamResponse::macro('flash', function ($message) {
-    return turbo_stream()->append('notifications', view('layouts.notification', [
-        'message' => $message,
-    ]));
-});
+```php filename="app/Providers/AppServiceProvider.php"
+<?php
+
+namespace App\Providers;
+
+use Illuminate\Support\ServiceProvider;
+use Tonysm\TurboLaravel\Http\PendingTurboStreamResponse; // [tl! add]
+
+class AppServiceProvider extends ServiceProvider
+{
+    // [tl! collapse:start]
+    /**
+     * Register any application services.
+     *
+     * @return void
+     */
+    public function register()
+    {
+        //
+    }
+
+    /**
+     * Bootstrap any application services.
+     *
+     * @return void
+     */
+    // [tl! collapse:end]
+    public function boot()
+    {
+        //
+        PendingTurboStreamResponse::macro('flash', function ($message) { // [tl! remove:-1,1 add:0,5]
+            return turbo_stream()->append('notifications', view('layouts.notification', [
+                'message' => $message,
+            ]));
+        });
+    }
+}
 ```
 
 Now, our controllers can be cleaned up a bit:
 
-```php
+```php filename="app/Http/Controllers/ChirpController.php"
 <?php
 // [tl! collapse:start]
 namespace App\Http\Controllers;

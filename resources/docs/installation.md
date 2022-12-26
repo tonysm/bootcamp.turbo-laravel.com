@@ -205,7 +205,7 @@ php artisan stimulus:install
 
 Let's change our main `app.js` file to import the `libs/index.js` file instead of each lib file and remove the Alpine setup from there as well:
 
-```js
+```js filename="resources/js/app.js"
 import 'bootstrap';
 import 'elements/turbo-echo-stream-tag';
 import 'libs'; // [tl! add]
@@ -228,7 +228,7 @@ rm resources/js/libs/alpine.js
 
 Next, update the `libs/index.js` file:
 
-```js
+```js filename="resources/js/libs/index.js"
 import 'libs/turbo';
 import 'libs/alpine'; // [tl! remove add:-1,1]
 import 'controllers';
@@ -236,7 +236,7 @@ import 'controllers';
 
 Let's change the `dashboard.blade.php` file to make use of our new `hello_controller.js`:
 
-```blade
+```blade filename="resources/views/dashboard.blade.php"
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
@@ -277,7 +277,7 @@ php artisan stimulus:make dropdown_controller
 
 Next, replace its contents with the following:
 
-```js
+```js filename="resources/js/controllers/dropdown_controller.js"
 import { Controller } from "@hotwired/stimulus"
 import { leave, enter } from "el-transition"
 
@@ -316,7 +316,7 @@ export default class extends Controller {
 
 Update the dropdown Blade component to look like this:
 
-```blade
+```blade filename="resources/views/components/dropdown.blade.php"
 @props(['align' => 'right', 'width' => '48', 'contentClasses' => 'py-1 bg-white'])
 
 @php
@@ -368,7 +368,7 @@ With that, our dropdowns should be working!
 
 Let's focus on the flash message next. For that, we're going to add a new animation to our `tailwind.config.js` file:
 
-```js
+```js filename="tailwind.config.js"
 const defaultTheme = require('tailwindcss/defaultTheme');
 
 /** @type {import('tailwindcss').Config} */
@@ -410,7 +410,7 @@ php artisan stimulus:make flash_controller
 
 Next, replace it with the following contents:
 
-```js
+```js filename="resources/js/controllers/flash_controller.js"
 import { Controller } from "@hotwired/stimulus"
 
 // Connects to data-controller="flash"
@@ -423,7 +423,7 @@ export default class extends Controller {
 
 Then, let's update the `update-password-form.blade.php` Blade view to use both the controller and the new animation. The trick is that we're going to listen to the [animationend CSS event](https://developer.mozilla.org/en-US/docs/Web/API/Element/animationend_event) and once that's done, we're going to remove the element from the DOM. We're also gonna make use of Turbo's [`data-turbo-cache="false"`](https://turbo.hotwired.dev/reference/attributes#data-attributes) to indicate that this element shouldn't be stored in the page cache when we leave the page:
 
-```blade
+```blade filename="resources/views/profile/partials/update-password-form.blade.php"
 <section>
     <!-- [tl! collapse:start] -->
     <header>
@@ -482,7 +482,7 @@ Then, let's update the `update-password-form.blade.php` Blade view to use both t
 
 Let's also update the `update-profile-information-form.blade.php` file:
 
-```blade
+```blade filename="resources/views/profile/partials/update-profile-information-form.blade.php"
 <section>
     <!-- [tl! collapse:start] -->
     <header>
@@ -576,7 +576,7 @@ php artisan stimulus:make modal_controller
 
 Then, replace its contents with the following:
 
-```js
+```js filename="resources/js/controllers/modal_controller.js"
 import { Controller } from "@hotwired/stimulus"
 import { enter, leave } from "el-transition";
 
@@ -681,7 +681,7 @@ export default class extends Controller {
 
 Next, replace the `modal.blade.php` component with this version:
 
-```blade
+```blade filename="resources/views/components/modal.blade.php"
 @props([
     'id',
     'show' => false,
@@ -750,7 +750,7 @@ php artisan stimulus:make modal_trigger_controller
 
 Update it with the following contents:
 
-```js
+```js filename="resources/js/controllers/modal_trigger_controller.js"
 import { Controller } from "@hotwired/stimulus"
 
 // Connects to data-controller="modal-trigger"
@@ -765,7 +765,7 @@ export default class extends Controller {
 
 Now, let's update the `delete-user-form.blade.php` file to use this controller:
 
-```blade
+```blade filename="resources/views/profile/partials/delete-user-form.blade.php"
 <section class="space-y-6">
     <!-- [tl! collapse:start] -->
     <header>
@@ -835,7 +835,7 @@ Okay, that should get the modal to open if you try to delete the profile (but re
 
 Now, the only thing remaining that was using Alpine is the mobile nav menu. We can use the existing dropdown controller for that, since it behaves the same:
 
-```blade
+```blade filename="resources/views/layouts/navigation.blade.php"
 <nav x-data="{ open: false }" class="bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700">
 <nav data-controller="dropdown" data-action="turbo:before-cache@window->modal#closeNow" class="bg-white border-b border-gray-100"> <!-- [tl! remove:-1,1 add] -->
     <!-- Primary Navigation Menu -->

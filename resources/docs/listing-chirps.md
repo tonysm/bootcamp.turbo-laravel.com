@@ -10,7 +10,7 @@ In the previous step we added the ability to create Chirps, now we're ready to d
 
 Let's update the `index` action our `ChirpController` to pass Chirps from every user to our `chirps.index` page.
 
-```php
+```php filename="app/Http/Controllers/ChirpController.php"
 <?php
 // [tl! collapse:start]
 namespace App\Http\Controllers;
@@ -118,7 +118,7 @@ Returning all Chirps at once won't scale in production. Take a look at Laravel's
 
 The Chirp's `user` relationship hasn't been defined yet. To fix this, let's add a new ["belongs to"](https://laravel.com/docs/eloquent-relationships#one-to-many-inverse) relationship to our `Chirp` model:
 
-```php
+```php filename="app/Models/Chirp.php"
 <?php
 // [tl! collapse:start]
 namespace App\Models;
@@ -224,7 +224,7 @@ Let's create an `<x-relative-time />` component that takes a Carbon instance and
 
 Then we can use this library in our `chirps._chirp` Blade partial to display relative dates using the newly installed HTML elements:
 
-```blade
+```blade filename="resources/views/chirps/_chirp.blade.php"
 <div class="p-6 flex space-x-2">
     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-600 -scale-x-100" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
         <path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
