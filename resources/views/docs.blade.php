@@ -59,7 +59,7 @@
                     </nav>
                 </aside>
 
-                <main id="main-content" class="flex-1 py-4 px-2 md:px-20 md:py-20 bg-white min-h-screen prose prose-pre:p-0 prose-pre:mr-4 w-full max-w-3xl xl:max-w-5xl">
+                <main id="main-content" class="break-words flex-1 py-4 px-2 md:px-20 md:py-20 bg-white min-h-screen prose prose-pre:p-0 prose-pre:mr-4 w-full max-w-3xl xl:max-w-5xl">
                     <div class="mb-6 p-4 rounded bg-blue-50 border border-blue-100 shadow-md">
                         <strong>Hey, there! 👋🏻</strong> This Bootcamp is still under construction. I'm sharing it publicly because I think it's already in a good enough shape, but here be dragons. If you find anything not working, please let me know and I'll fix it. I feel like the web part is complete, but the Turbo Native side wasn't reviewed yet. Enjoy!
                     </div>
