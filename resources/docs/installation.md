@@ -138,9 +138,9 @@ That's it! Get to the Dashboard page, open the DevTools, go to the Console tab, 
 
 ## Installing Importmap Laravel
 
-To get things more interesting, let's install an alternative frontend setup that doesn't require having Node and NPM locally. We could stick with Vite, but I found it's "Hot Module Replacement" feature not that great when working with Turbo. Feel free to skip this part of the tutorial if you want to keep using Vite.
+To get things more interesting, let's install an alternative frontend setup that doesn't require having Node and NPM locally. We could stick with Vite, but I found the "Hot Module Replacement" feature not that great when working with Turbo. Feel free to skip this part of the tutorial if you want to keep using Vite.
 
-We'll use [Importmap Laravel](https://github.com/tonysm/importmap-laravel) to handle the JS side of things:
+We'll use [Importmap Laravel](https://github.com/tonysm/importmap-laravel) to handle the JS side of our frontend:
 
 ```bash
 composer require tonysm/importmap-laravel
@@ -562,9 +562,9 @@ php artisan tailwindcss:build
 ```
 
 > **note**
-> You may prefer to keep a watcher running, which you can do by using the `php artisan tailwindcss:watch` command instead of the build one.
+> If you prefer to keep a CSS watcher running that will compile your TailwindCSS styles anytime something changes, use the `php artisan tailwindcss:watch` command in a new terminal window.
 
-Now, the flash messages should appear, then fade away and if you inspect the DOM after they disappear, they should be gone!
+Now, the flash messages should appear and then fade out after 3 seconds. If you inspect the DOM, you will see that the element was removed!
 
 ![Flash Messages](/images/installation-flash-message.png)
 
@@ -787,6 +787,7 @@ Now, let's update the `delete-user-form.blade.php` file to use this controller:
     >{{ __('Delete Account') }}</x-danger-button> <!-- [tl! remove:-5,2 add:-4,4] -->
 
     <x-modal name="confirm-user-deletion" :show="$errors->userDeletion->isNotEmpty()" focusable>
+    <x-modal id="confirm-user-deletion" :show="$errors->userDeletion->isNotEmpty()" focusable> <!-- [tl! remove:-1 add]>
         <form method="post" action="{{ route('profile.destroy') }}" class="p-6">
             <!-- [tl! collapse:start] -->
             @csrf
@@ -832,7 +833,7 @@ Okay, that should get the modal to open if you try to delete the profile (but re
 
 ![Modal Working Again](/images/installation-modal.png)
 
-Now, the only thing remaining that was using Alpine is the navigation. We can use the existing dropdown controller for that, since it behaves the same:
+Now, the only thing remaining that was using Alpine is the mobile nav menu. We can use the existing dropdown controller for that, since it behaves the same:
 
 ```blade
 <nav x-data="{ open: false }" class="bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700">
