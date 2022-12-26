@@ -24,6 +24,20 @@ services:
             - sail
         depends_on:
             - mysql
+    tailwind.watcher:
+        build:
+            context: ./vendor/laravel/sail/runtimes/8.1
+            dockerfile: Dockerfile
+            args:
+                WWWGROUP: '${WWWGROUP}'
+        image: sail-8.1/app
+        volumes:
+            - '.:/var/www/html'
+        networks:
+            - sail
+        depends_on:
+            - laravel.test
+        command: ["php", "artisan", "tailwindcss:watch"]
     mysql:
         image: 'mysql/mysql-server:8.0'
         ports:
