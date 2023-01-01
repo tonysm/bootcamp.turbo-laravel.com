@@ -24,7 +24,7 @@ h6:hover .heading-permalink,
 }
 
 /* Red heading numerals */
-h1 b {
-    @apply text-red-600;
+h1 em {
+    @apply text-blue-600;
     font-weight: inherit;
 }
