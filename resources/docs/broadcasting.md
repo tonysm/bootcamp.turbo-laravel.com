@@ -1821,7 +1821,9 @@ Now, if you try creating another user and test this out, you'll see that the dro
 
 ![Dropdown only shows up for creator](/images/broadcasting-dropdown-fix.png)
 
-> **note**
-> This change also makes our entire `_chirp` partial cacheable! We could cache it and only render that when changes are made to the Chirp model using the Chirp's `updated_at` timestamps, for example.
+This change also makes our entire `_chirp` partial cacheable! We could cache it and only render that when changes are made to the Chirp model using the Chirp's `updated_at` timestamps, for example.
+
+> **warning**
+> Hiding the links in the frontend _**MUST NOT**_ be your only protection here. Always ensure users are authorized to perform actions in the server side. We're already doing this in our controller using [Laravel's Authorization Policies](https://laravel.com/docs/authorization#introduction).
 
 [Continue to setting up the native app...](/native-setup)
