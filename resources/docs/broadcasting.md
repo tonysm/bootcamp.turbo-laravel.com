@@ -1674,7 +1674,7 @@ php artisan stimulus:make visible_to_creator
 
 Now, update the Stimulus controller to look like this:
 
-```js filename="resources/views/js/controllers/visible_to_creator_controller.js"
+```js filename="resources/js/controllers/visible_to_creator_controller.js"
 import { Controller } from "@hotwired/stimulus"
 import { current } from 'libs/current'
 
