@@ -817,4 +817,4 @@ With these changes, our application behaves so much better than before! Try it o
 
 ![Inline Editing Forms](/images/hotwiring-chirps-inline-forms.png)
 
-[Continue to setting up the native app...](/native-setup)
+[Continue to Broadcasting...](/broadcasting)

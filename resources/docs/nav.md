@@ -6,6 +6,7 @@
     - [Editing Chirps](/editing-chirps)
     - [Deleting Chirps](/deleting-chirps)
     - [Hotwiring everything](/hotwiring-everything)
+    - [Broadcasting](/broadcasting)
 - ## Build Turbo Chirper (Native)
     - [Setting up the app](/native-setup)
     - [Native Auth and Sanctum](/native-auth-with-sanctum)
