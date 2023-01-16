@@ -1666,7 +1666,7 @@ First, let's update our `layouts.current-meta.blade.php` partial to include a fe
 @endauth
 ```
 
-Now, we're going to create a new Stimulus controller that is going to be responsible of this dropdown visibilily. It should only show it if the currently authenticated user was the creator of the Chirp. First, let's create the controller:
+Now, we're going to create a new Stimulus controller that is going to be responsible for the dropdown visibilily. It should only show it if the currently authenticated user is the creator of the Chirp. First, let's create the controller:
 
 ```bash
 php artisan stimulus:make visible_to_creator
