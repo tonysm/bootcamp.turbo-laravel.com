@@ -557,9 +557,9 @@ return [
 ];
 ```
 
-Now, since we're using Importmap Laravel, we need to expose the JS Pusher keys to our frontend somehow (normally could reach for them using `import.meta.VITE_*`, but we don't have a build compilation step here.)
+Now, since we're using Importmap Laravel, we need to expose the JS Pusher keys to our frontend somehow (in a Vite setup we could reach for them using `import.meta.VITE_*`, but we don't have a build compilation step here.)
 
-For that reason, we're gonna add some meta tags to our `app.blade.php` layout file that will expose those configs for our JS frontend:
+For that reason, we're gonna add some meta tags to our `app.blade.php` and `guest.blade.php` layouts that will expose those configs for our JS frontend:
 
 ```blade filename="resources/views/layouts/app.blade.php"
 <!DOCTYPE html>
@@ -742,7 +742,7 @@ function camelize(string) {
 }
 ```
 
-This snippet was taken from the Hey frontend source code, which is fully available to anyone to learn from in the page sources. Based on the comments, we can see to use it. In our case, we can access all of our `current-pusher-*` configs as an object by reaching for `current.pusher`, which would give us an object like so:
+This snippet was taken from the Hey frontend source code, which is fully available to anyone to learn from in the page sources. Based on the comments, we can see how we can use it. In our case, we can access all of our `current-pusher-*` configs as an object by reaching for `current.pusher`, which would give us an object like so:
 
 ```js
 {
@@ -1055,7 +1055,7 @@ class ChirpController extends Controller
 }
 ```
 
-To test this, try visiting the `/chirps` page from two different tabs and creating a Chirp in one of them. The other should automatically update! We're also broadcasting on-the-fly in the same request life-cycle, which could slow down our response time a bit, depending on your load and your queue driver response time. We can delay the broadcasting (which includes view rendering) to the a queued job by chaining with the `->later()`, for example.
+To test this, try visiting the `/chirps` page from two different tabs and creating a Chirp in one of them. The other should automatically update! We're also broadcasting on-the-fly in the same request/response life-cycle, which could slow down our response time a bit, depending on your load and your queue driver response time. We can delay the broadcasting (which includes view rendering) to the a queued job by chaining the `->later()` method, for example.
 
 Now, let's make sure all visiting users receive Chirp updates whenever it changes. To achieve that, change the `update` action in the `ChirpController`:
 
