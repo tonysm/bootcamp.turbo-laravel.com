@@ -1,4 +1,4 @@
-# *08.* Native Auth Screens and Laravel Sanctum
+# *09.* Native Auth Screens and Laravel Sanctum
 
 [TOC]
 
