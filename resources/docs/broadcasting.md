@@ -1648,7 +1648,7 @@ User::first()->chirps()->create(['message' => 'Hello from Tinker!!'])
 
 If we were using a real async queue driver and sending broadcasting to the queue, we'd notice the dropdowns gone missing from our Turbo Stream broadcasts! Refreshing the page would make them appear again. That's because when we send the broadcasts to run in background our partial will render without a session context, so our calls to `Auth::id()` inside of it will always return `null`, which means the dropdown would never render.
 
-Instead of conditionally rendering the dropdown in the server side, we're always going to render it. We're then going to hide it from our users with a sprinkle of JavaScript.
+Instead of conditionally rendering the dropdown in the server side, we're always going to render it. Then, we're going to hide it from our users with a sprinkle of JavaScript.
 
 First, let's update our `layouts.current-meta.blade.php` partial to include a few things about the currently authenticated user when there's one:
 
