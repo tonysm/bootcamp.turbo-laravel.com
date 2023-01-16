@@ -949,7 +949,7 @@ class ChirpController extends Controller
         // [tl! add:1,6]
         $chirp->broadcastPrependTo('chirps')
             ->target('chirps')
-            ->partial('chirps._chirps', [
+            ->partial('chirps._chirp', [
                 'chirp' => $chirp,
             ])
             ->toOthers();
@@ -1112,7 +1112,7 @@ class ChirpController extends Controller
 
         $chirp->broadcastPrependTo('chirps')
             ->target('chirps')
-            ->partial('chirps._chirps', [
+            ->partial('chirps._chirp', [
                 'chirp' => $chirp,
             ])
             ->toOthers();
@@ -1177,7 +1177,7 @@ class ChirpController extends Controller
         // [tl! add:1,6]
         $chirp->broadcastReplaceTo('chirps')
             ->target(dom_id($chirp))
-            ->partial('chirps._chirps', [
+            ->partial('chirps._chirp', [
                 'chirp' => $chirp,
             ])
             ->toOthers();
@@ -1282,7 +1282,7 @@ class ChirpController extends Controller
 
         $chirp->broadcastPrependTo('chirps')
             ->target('chirps')
-            ->partial('chirps._chirps', [
+            ->partial('chirps._chirp', [
                 'chirp' => $chirp,
             ])
             ->toOthers();
@@ -1347,7 +1347,7 @@ class ChirpController extends Controller
 
         $chirp->broadcastReplaceTo('chirps')
             ->target(dom_id($chirp))
-            ->partial('chirps._chirps', [
+            ->partial('chirps._chirp', [
                 'chirp' => $chirp,
             ])
             ->toOthers();
@@ -1502,7 +1502,7 @@ class ChirpController extends Controller
         // [tl! remove:1,6]
         $chirp->broadcastPrependTo('chirps')
             ->target('chirps')
-            ->partial('chirps._chirps', [
+            ->partial('chirps._chirp', [
                 'chirp' => $chirp,
             ])
             ->toOthers();
@@ -1567,7 +1567,7 @@ class ChirpController extends Controller
         // [tl! remove:1,6]
         $chirp->broadcastReplaceTo('chirps')
             ->target(dom_id($chirp))
-            ->partial('chirps._chirps', [
+            ->partial('chirps._chirp', [
                 'chirp' => $chirp,
             ])
             ->toOthers();
