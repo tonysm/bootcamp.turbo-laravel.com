@@ -1644,4 +1644,184 @@ User::first()->chirps()->create(['message' => 'Hello from Tinker!!'])
 
 ![Broadcasting from Tinker](/images/broadcasting-tinker.png)
 
+### Extra Credit: Fixing The Missing Dropdowns
+
+If we were using a real async queue driver and sending broadcasting to the queue, we'd notice the dropdowns gone missing from our Turbo Stream broadcasts! Refreshing the page would make them appear again. That's because when we send the broadcasts to run in background our partial will render without a session context, so our calls to `Auth::id()` inside of it will always return `null`, which means the dropdown would never render.
+
+Instead of conditionally rendering the dropdown in the server side, we're always going to render it. We're then going to hide it from our users with a sprinkle of JavaScript.
+
+First, let's update our `layouts.current-meta.blade.php` partial to include a few things about the currently authenticated user when there's one:
+
+```blade filename="resources/views/layouts/current-meta.blade.php"
+{{-- Pusher Client-Side Config --}}
+<meta name="current-pusher-key" content="{{ config('broadcasting.connections.pusher.key') }}" />
+<meta name="current-pusher-cluster" content="{{ config('broadcasting.connections.pusher.frontend_options.cluster') }}" />
+<meta name="current-pusher-wsHost" content="{{ config('broadcasting.connections.pusher.frontend_options.host') }}" />
+<meta name="current-pusher-wsPort" content="{{ config('broadcasting.connections.pusher.frontend_options.port') }}" />
+<meta name="current-pusher-forceTLS" content="{{ config('broadcasting.connections.pusher.frontend_options.forceTLS') ? 'true' : 'false' }}" />
+<!-- [tl! add:1,4] -->
+@auth
+<meta name="current-identity-id" content="{{ Auth::user()->id }}" />
+<meta name="current-identity-name" content="{{ Auth::user()->name }}" />
+@endauth
+```
+
+Now, we're going to create a new Stimulus controller that is going to be responsible of this dropdown visibilily. It should only show it if the currently authenticated user was the creator of the Chirp. First, let's create the controller:
+
+```bash
+php artisan stimulus:make visible_to_creator
+```
+
+Now, update the Stimulus controller to look like this:
+
+```js filename="resources/views/js/controllers/visible_to_creator_controller.js"
+import { Controller } from "@hotwired/stimulus"
+import { current } from 'libs/current'
+
+// Connects to data-controller="visible-to-creator"
+export default class extends Controller {
+    static values = {
+        'id': String,
+    };
+
+    static classes = ['hidden'];
+
+    connect() {
+        this.toggleVisibility();
+    }
+
+    toggleVisibility() {
+        if (this.idValue == current.identity.id) {
+            this.element.classList.remove(...this.hiddenClasses);
+        } else {
+            this.element.classList.add(...this.hiddenClasses);
+        }
+    }
+}
+```
+
+Now, let's update our `_chirp.blade.php` partial to use this controller instead of handling this in the server-side:
+
+```blade filename="resources/views/chirps/_chirp.blade.php"
+<x-turbo-frame :id="$chirp" class="block p-6">
+    <div class="flex space-x-2">
+        <!-- [tl! collapse:start] -->
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-600 -scale-x-100" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+        </svg>
+        <!-- [tl! collapse:end] -->
+        <div class="flex-1">
+            <div class="flex justify-between items-center">
+                <!-- [tl! collapse:start] -->
+                <div>
+                    <span class="text-gray-800">{{ $chirp->user->name }}</span>
+                    <small class="ml-2 text-sm text-gray-600">
+                        <x-relative-time :date="$chirp->created_at" />
+                    </small>
+                    @unless ($chirp->created_at->eq($chirp->updated_at))
+                    <small class="text-sm text-gray-600"> &middot; edited</small>
+                    @endunless
+                </div>
+                <!-- [tl! collapse:end remove:1,2 add:3,8] -->
+                @if (Auth::id() === $chirp->user->id)
+                <x-dropdown align="right" width="48">
+                <x-dropdown
+                    align="right"
+                    width="48"
+                    class="hidden"
+                    data-controller="visible-to-creator"
+                    data-visible-to-creator-id-value="{{ $chirp->user_id }}"
+                    data-visible-to-creator-hidden-class="hidden"
+                >
+                    <!-- [tl! collapse:start] -->
+                    <x-slot name="trigger">
+                        <button>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
+                                <path d="M6 10a2 2 0 11-4 0 2 2 0 014 0zM12 10a2 2 0 11-4 0 2 2 0 014 0zM16 12a2 2 0 100-4 2 2 0 000 4z" />
+                            </svg>
+                        </button>
+                    </x-slot>
+
+                    <x-slot name="content">
+                        <a href="{{ route('chirps.edit', $chirp) }}" class="block w-full px-4 py-2 text-left text-sm leading-5 text-gray-700 hover:bg-gray-100 focus:bg-gray-100 transition duration-150 ease-in-out">
+                            Edit
+                        </a>
+
+                        <form action="{{ route('chirps.destroy', $chirp) }}" method="POST">
+                            @method('DELETE')
+
+                            <button class="block w-full px-4 py-2 text-left text-sm leading-5 text-gray-700 hover:bg-gray-100 focus:bg-gray-100 transition duration-150 ease-in-out">
+                                Delete
+                            </button>
+                        </form>
+                    </x-slot>
+                    <!-- [tl! collapse:end] -->
+                </x-dropdown> <!-- [tl! remove:1,1] -->
+                @endif
+            </div>
+            <p class="mt-4 text-lg text-gray-900">{{ $chirp->message }}</p>
+        </div>
+    </div>
+</x-turbo-frame>
+```
+
+Next, we need to tweak our `dropdown.blade.php` Blade component to accept and merge the `class`, `data-controller`, and `data-action` attributes:
+
+```blade filename="resources/views/components/dropdown.blade.php"
+@props(['align' => 'right', 'width' => '48', 'contentClasses' => 'py-1 bg-white'])
+@props(['align' => 'right', 'width' => '48', 'class' => '', 'contentClasses' => 'py-1 bg-white', 'dataController' => '', 'dataAction' => ''])
+<!-- [tl! remove:-2,1 add:-1,1 collapse:start] -->
+@php
+switch ($align) {
+    case 'left':
+        $alignmentClasses = 'origin-top-left left-0';
+        break;
+    case 'top':
+        $alignmentClasses = 'origin-top';
+        break;
+    case 'right':
+    default:
+        $alignmentClasses = 'origin-top-right right-0';
+        break;
+}
+
+switch ($width) {
+    case '48':
+        $width = 'w-48';
+        break;
+}
+@endphp
+<!-- [tl! collapse:end remove:1,1 add:2,1] -->
+<div class="relative" data-controller="dropdown" data-action="turbo:before-cache@window->dropdown#closeNow click@window->dropdown#close close->dropdown#close">
+<div class="relative {{ $class }}" data-controller="dropdown {{ $dataController }}" data-action="turbo:before-cache@window->dropdown#closeNow click@window->dropdown#close close->dropdown#close {{ $dataAction }}" {{ $attributes }}>
+    <!-- [tl! collapse:start] -->
+    <div data-action="click->dropdown#toggle" data-dropdown-target="trigger">
+        {{ $trigger }}
+    </div>
+
+    <div
+        data-dropdown-target="menu"
+        data-transition-enter="transition ease-out duration-200"
+        data-transition-enter-start="transform opacity-0 scale-95"
+        data-transition-enter-end="transform opacity-100 scale-100"
+        data-transition-leave="transition ease-in duration-75"
+        data-transition-leave-start="transform opacity-100 scale-100"
+        data-transition-leave-end="transform opacity-0 scale-95"
+        class="absolute z-50 mt-2 {{ $width }} rounded-md shadow-lg {{ $alignmentClasses }} hidden"
+    >
+        <div class="rounded-md ring-1 ring-black ring-opacity-5 {{ $contentClasses }}">
+            {{ $content }}
+        </div>
+    </div>
+    <!-- [tl! collapse:end] -->
+</div>
+```
+
+Now, if you try creating another user and test this out, you'll see that the dropdown only shows up for the creator of the Chirp!
+
+![Dropdown only shows up for creator](/images/broadcasting-dropdown-fix.png)
+
+> **note**
+> This change also makes our entire `_chirp` partial cacheable! We could cache it and only render that when changes are made to the Chirp model using the Chirp's `updated_at` timestamps, for example.
+
 [Continue to setting up the native app...](/native-setup)
