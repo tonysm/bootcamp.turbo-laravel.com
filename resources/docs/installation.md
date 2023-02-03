@@ -195,10 +195,10 @@ If you refresh the page now, the error should be gone and we're now using Import
 
 ## Installing Stimulus Laravel
 
-Our last piece is replacing Alpine for Stimulus. Let's start by installing the [Stimulus Laravel](https://github.com/tonysm/stimulus-laravel) package:
+Our last piece is replacing Alpine for Stimulus. Let's start by installing the [Stimulus Laravel](https://github.com/hotwired-laravel/stimulus-laravel) package:
 
 ```bash
-composer require tonysm/stimulus-laravel
+composer require hotwired/stimulus-laravel
 
 php artisan stimulus:install
 ```

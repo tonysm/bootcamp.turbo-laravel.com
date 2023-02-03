@@ -2,7 +2,7 @@
 
 Learn how to make web apps using Laravel and Hotwire. When we finish the web app, we'll dig into the Turbo Native side of Hotwire so we can see it to bridge the Web and Native Worlds!
 
-To explore the many sides of Hotwire, we're going to build a microblogging platform called Turbo Chirper. Many parts of this tutorial were inspired by the [official Laravel Bootcamp](https://bootcamp.laravel.com/) and adapted to work better in a Hotwired app.
+To explore the many sides of Hotwire, we're going to build a micro-blogging platform called Turbo Chirper. Many parts of this tutorial were inspired by the [official Laravel Bootcamp](https://bootcamp.laravel.com/) and adapted to work better in a Hotwired app.
 
 We're going to use [Importmap Laravel](https://github.com/tonysm/importmap-laravel) and [TailwindCSS Laravel](https://github.com/tonysm/tailwindcss-laravel) instead of Laravel's default Vite setup. Vite would work, but I'm taking this opportunity to demonstrate an alternative front-end setup. If you're already familiar with Vite, feel free to skip the installation parts about Importmap Laravel and TailwindCSS Laravel.
 
@@ -12,7 +12,7 @@ Let's get started!
 
 ## Web
 
-In the Web Tutorial, we're gonna build our [majestic web app](https://m.signalvnoise.com/the-majestic-monolith/) using [Laravel](https://laravel.com/) and [Turbo Laravel](https://github.com/tonysm/turbo-laravel) that will serve as basis for the second part of the tutorial which focuses on Turbo Native and Android.
+In the Web Tutorial, we're gonna build our [majestic web app](https://m.signalvnoise.com/the-majestic-monolith/) using [Laravel](https://laravel.com/) and [Turbo Laravel](https://github.com/hotwired-laravel/turbo-laravel) that will serve as basis for the second part of the tutorial which focuses on Turbo Native and Android.
 
 [Start the Web Tutorial...](/installation)
 
