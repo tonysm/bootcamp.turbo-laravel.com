@@ -119,7 +119,7 @@ This Dashboard page is protected by Laravel's auth middleware, so only authentic
 Next, we'll install Turbo Laravel, because this is a Turbo Bootcamp after all!
 
 ```bash
-composer require tonysm/turbo-laravel
+composer require hotwired/turbo-laravel
 
 php artisan turbo:install --alpine
 ```
